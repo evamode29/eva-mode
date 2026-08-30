@@ -34,6 +34,9 @@ export type ProductImage = {
   alt: string;
   sortOrder: number;
   isPrimary: boolean;
+
+  // تصویر متعلق به کدام رنگ است
+  colorId?: string | null;
 };
 
 export type Category = {

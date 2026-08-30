@@ -1,12 +1,18 @@
 import { ProductCard } from "@/components/product/ProductCard";
-import type { Product } from "@/types";
+import type { ProductCardData } from "@/lib/products";
 
-export function ProductGrid({ items }: { items: Product[] }) {
+export function ProductGrid({
+  items,
+}: {
+  items: ProductCardData[];
+}) {
   if (items.length === 0) {
     return (
       <div className="empty-state">
-        <h2>محصولی موجود نیست</h2>
-        <p>در حال حاضر محصول فعالی برای نمایش وجود ندارد.</p>
+        <h2>محصولی پیدا نشد</h2>
+        <p>
+          محصولی مطابق جستجوی شما وجود ندارد.
+        </p>
       </div>
     );
   }
@@ -14,7 +20,10 @@ export function ProductGrid({ items }: { items: Product[] }) {
   return (
     <div className="product-grid">
       {items.map((product) => (
-        <ProductCard key={product.id} product={product} />
+        <ProductCard
+          key={product.id}
+          product={product}
+        />
       ))}
     </div>
   );

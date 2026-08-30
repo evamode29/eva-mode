@@ -1,20 +1,145 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
+import { useCart } from "@/components/cart/CartContext";
 
-const fields = [
-  "نام و نام خانوادگی",
-  "شماره موبایل",
-  "استان",
-  "شهر",
-  "آدرس",
-  "کد پستی",
-];
+function formatPrice(value: number) {
+  return new Intl.NumberFormat("fa-IR").format(value);
+}
+
+type FormData = {
+  fullName: string;
+  mobile: string;
+  province: string;
+  city: string;
+  address: string;
+  postalCode: string;
+};
 
 export default function CheckoutPage() {
+  const {
+    items,
+    totalItems,
+    totalPrice,
+    clearCart,
+  } = useCart();
+
+  const [formData, setFormData] =
+    useState<FormData>({
+      fullName: "",
+      mobile: "",
+      province: "",
+      city: "",
+      address: "",
+      postalCode: "",
+    });
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [orderNumber, setOrderNumber] =
+    useState<string | null>(null);
+
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    const { name, value } = event.target;
+
+    setFormData((current) => ({
+      ...current,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError("");
+    }
+  }
+
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    if (loading) {
+      return;
+    }
+
+    setError("");
+
+    if (items.length === 0) {
+      setError(
+        "سبد خرید شما خالی است."
+      );
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "/api/orders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            customer: formData,
+
+            items: items.map((item) => ({
+              productId:
+                item.productId,
+
+              variantId:
+                item.variantId,
+
+              quantity:
+                item.quantity,
+            })),
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error ||
+            "ثبت سفارش انجام نشد."
+        );
+      }
+
+      if (!data.success) {
+        throw new Error(
+          "ثبت سفارش انجام نشد."
+        );
+      }
+
+      clearCart();
+
+      setOrderNumber(
+        data.orderNumber
+      );
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "خطایی هنگام ثبت سفارش رخ داد."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <>
       <Header />
@@ -23,52 +148,302 @@ export default function CheckoutPage() {
         <section className="page-section">
           <Container>
             <div className="page-heading">
-              <span className="eyebrow">CHECKOUT / 01</span>
-              <h1>تکمیل سفارش</h1>
+              <span className="eyebrow">
+                CHECKOUT / 01
+              </span>
+
+              <h1>
+                تکمیل سفارش
+              </h1>
             </div>
 
-            <div className="checkout-layout">
-              <form
-                className="checkout-form"
-                onSubmit={(event) => event.preventDefault()}
-              >
-                <h2>اطلاعات گیرنده</h2>
+            {orderNumber ? (
+              <div className="cart-empty">
+                <span className="eyebrow">
+                  ORDER CONFIRMED
+                </span>
 
-                {fields.map((field) => (
-                  <label key={field}>
-                    {field}
-                    <input placeholder={field} />
-                  </label>
-                ))}
+                <h2>
+                  سفارش شما با موفقیت ثبت شد.
+                </h2>
 
-                <p className="form-note">
-                  این فرم در این مرحله صرفاً رابط کاربری نمایشی است.
+                <p>
+                  شماره سفارش:
+                  {" "}
+                  <strong>
+                    {orderNumber}
+                  </strong>
                 </p>
-              </form>
 
-              <aside className="summary-card">
-                <h2>خلاصه سفارش</h2>
+                <p>
+                  سفارش شما در وضعیت انتظار
+                  برای پرداخت قرار دارد.
+                </p>
 
-                <div>
-                  <span>محصولات</span>
-                  <strong>۱,۴۹۰,۰۰۰ تومان</strong>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "12px",
+                    flexWrap: "wrap",
+                    justifyContent:
+                      "center",
+                    marginTop: "24px",
+                  }}
+                >
+                  <Link href="/shop">
+                    <Button>
+                      ادامه خرید
+                    </Button>
+                  </Link>
+
+                  <Link href="/">
+                    <Button variant="secondary">
+                      بازگشت به خانه
+                    </Button>
+                  </Link>
                 </div>
+              </div>
+            ) : items.length === 0 ? (
+              <div className="cart-empty">
+                <h2>
+                  سبد خرید شما خالی است.
+                </h2>
 
-                <div>
-                  <span>ارسال</span>
-                  <strong>محاسبه بعداً</strong>
-                </div>
+                <p>
+                  برای ادامه پرداخت ابتدا
+                  یک محصول به سبد خرید اضافه
+                  کنید.
+                </p>
 
-                <hr />
+                <Link href="/shop">
+                  <Button variant="secondary">
+                    رفتن به فروشگاه
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="checkout-layout">
+                <form
+                  className="checkout-form"
+                  onSubmit={handleSubmit}
+                >
+                  <h2>
+                    اطلاعات گیرنده
+                  </h2>
 
-                <div>
-                  <span>مبلغ نهایی</span>
-                  <strong>۱,۴۹۰,۰۰۰ تومان</strong>
-                </div>
+                  <label>
+                    نام و نام خانوادگی
 
-                <Button type="button">پرداخت</Button>
-              </aside>
-            </div>
+                    <input
+                      name="fullName"
+                      value={
+                        formData.fullName
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="نام و نام خانوادگی"
+                      autoComplete="name"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    شماره موبایل
+
+                    <input
+                      name="mobile"
+                      type="tel"
+                      value={
+                        formData.mobile
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="09xxxxxxxxx"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    استان
+
+                    <input
+                      name="province"
+                      value={
+                        formData.province
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="استان"
+                      autoComplete="address-level1"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    شهر
+
+                    <input
+                      name="city"
+                      value={
+                        formData.city
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="شهر"
+                      autoComplete="address-level2"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    آدرس
+
+                    <input
+                      name="address"
+                      value={
+                        formData.address
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="آدرس کامل"
+                      autoComplete="street-address"
+                      required
+                    />
+                  </label>
+
+                  <label>
+                    کد پستی
+
+                    <input
+                      name="postalCode"
+                      value={
+                        formData.postalCode
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="کد پستی"
+                      inputMode="numeric"
+                      autoComplete="postal-code"
+                      required
+                    />
+                  </label>
+
+                  <p className="form-note">
+                    اطلاعات شما برای تکمیل
+                    سفارش و ارسال محصول
+                    استفاده خواهد شد.
+                  </p>
+
+                  {error && (
+                    <p
+                      className="form-note"
+                      role="alert"
+                    >
+                      {error}
+                    </p>
+                  )}
+
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                  >
+                    {loading
+                      ? "در حال ثبت سفارش..."
+                      : "ادامه و پرداخت"}
+                  </Button>
+                </form>
+
+                <aside className="summary-card">
+                  <h2>
+                    خلاصه سفارش
+                  </h2>
+
+                  <div>
+                    <span>
+                      محصولات (
+                      {formatPrice(
+                        totalItems
+                      )}
+                      )
+                    </span>
+
+                    <strong>
+                      {formatPrice(
+                        totalPrice
+                      )}{" "}
+                      تومان
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      ارسال
+                    </span>
+
+                    <strong>
+                      محاسبه بعداً
+                    </strong>
+                  </div>
+
+                  <hr />
+
+                  <div>
+                    <span>
+                      مبلغ نهایی
+                    </span>
+
+                    <strong>
+                      {formatPrice(
+                        totalPrice
+                      )}{" "}
+                      تومان
+                    </strong>
+                  </div>
+
+                  <div className="checkout-products">
+                    {items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="checkout-product"
+                      >
+                        <div>
+                          <strong>
+                            {item.name}
+                          </strong>
+
+                          <span>
+                            {item.colorName}
+                            {" · "}
+                            {item.sizeName}
+                            {" · "}
+                            تعداد:{" "}
+                            {formatPrice(
+                              item.quantity
+                            )}
+                          </span>
+                        </div>
+
+                        <strong>
+                          {formatPrice(
+                            item.price *
+                              item.quantity
+                          )}{" "}
+                          تومان
+                        </strong>
+                      </div>
+                    ))}
+                  </div>
+                </aside>
+              </div>
+            )}
           </Container>
         </section>
       </main>
