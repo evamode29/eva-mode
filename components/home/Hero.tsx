@@ -1,5 +1,4 @@
-﻿
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 
@@ -20,8 +19,8 @@ export function Hero() {
             </h1>
 
             <p>
-              مجموعه‌ای منتخب از لباس زیر زنانه؛
-              با تمرکز بر ظرافت، کیفیت و راحتی.
+              انتخابی از لباس زیر زنانه با تمرکز بر
+              ظرافت، کیفیت و راحتی.
             </p>
 
             <div className="hero-actions">
@@ -50,7 +49,7 @@ export function Hero() {
           <div className="hero-image-wrap">
             <Image
               src="/images/hero.jpg"
-              alt="مجموعه لباس زیر زنانه EVA MODE"
+              alt="مجموعه EVA MODE"
               fill
               priority
               sizes="(max-width: 719px) 100vw, 55vw"

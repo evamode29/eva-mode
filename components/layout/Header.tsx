@@ -1,11 +1,26 @@
-﻿import Link from "next/link";
+﻿"use client";
+
+import Link from "next/link";
+import { useState } from "react";
 import { Container } from "@/components/ui/Container";
 
 export function Header() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <header className="site-header">
       <Container>
         <div className="header-inner">
+          <button
+            type="button"
+            className="mobile-menu-button"
+            aria-label="باز کردن منو"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((value) => !value)}
+          >
+            ☰
+          </button>
+
           <Link
             href="/"
             className="wordmark"
@@ -14,31 +29,40 @@ export function Header() {
             EVA <span>MODE</span>
           </Link>
 
-          <nav className="desktop-nav" aria-label="ناوبری اصلی">
+          <nav
+            className={`desktop-nav ${
+              menuOpen ? "is-open" : ""
+            }`}
+            aria-label="ناوبری اصلی"
+          >
             <Link href="/shop">فروشگاه</Link>
-            <Link href="/shop#categories">دسته‌بندی‌ها</Link>
-            <Link href="/shop?sort=newest">جدیدترین‌ها</Link>
-            <Link href="/shop?filter=bestseller">پرفروش‌ها</Link>
+            <Link href="/#categories">دسته‌بندی‌ها</Link>
+            <Link href="/shop?sort=newest">
+              جدیدترین‌ها
+            </Link>
+            <Link href="/shop?filter=bestseller">
+              پرفروش‌ها
+            </Link>
           </nav>
 
           <div className="header-actions">
-            <button
-              className="icon-button search-trigger"
-              aria-label="جستجو"
-              type="button"
+            <Link
+              href="/shop"
+              className="icon-button"
+              aria-label="جستجوی محصولات"
             >
               <span aria-hidden="true">⌕</span>
               <span className="action-label">جستجو</span>
-            </button>
+            </Link>
 
-            <button
+            <Link
+              href="/admin"
               className="icon-button"
               aria-label="حساب کاربری"
-              type="button"
             >
               <span aria-hidden="true">♙</span>
               <span className="action-label">حساب</span>
-            </button>
+            </Link>
 
             <Link
               href="/cart"

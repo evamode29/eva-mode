@@ -1,26 +1,33 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ShopHeader } from "@/components/shop/ShopHeader";
-import { ShopProducts } from "@/components/shop/ShopProducts";
+import { Hero } from "@/components/home/Hero";
+import { CategorySection } from "@/components/home/CategorySection";
+import { ProductSection } from "@/components/home/ProductSection";
 import {
   getActiveCategories,
   getActiveProducts,
 } from "@/lib/products";
 
-export default async function ShopPage() {
+export default async function HomePage() {
   const [products, categories] = await Promise.all([
-  getActiveProducts(),
-  getActiveCategories(),
-]);
+    getActiveProducts(),
+    getActiveCategories(),
+  ]);
 
   return (
     <>
       <Header />
 
       <main>
-        <ShopHeader />
+        <Hero />
 
-        <ShopProducts products={products} />
+        <CategorySection categories={categories} />
+
+        <ProductSection
+          title="منتخب EVA MODE"
+          eyebrow="02 / SELECTED"
+          products={products}
+        />
       </main>
 
       <Footer />

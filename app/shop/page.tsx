@@ -1,4 +1,3 @@
-
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ShopHeader } from "@/components/shop/ShopHeader";
@@ -14,7 +13,6 @@ export default async function ShopPage() {
 
       <main>
         <ShopHeader />
-
         <ShopProducts products={products} />
       </main>
 

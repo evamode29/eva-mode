@@ -1,5 +1,4 @@
-﻿
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import type { Category } from "@/types";
@@ -9,18 +8,23 @@ export function CategorySection({
 }: {
   categories: Category[];
 }) {
-  if (categories.length === 0) {
+  if (!categories.length) {
     return null;
   }
 
   return (
-    <section className="section category-section" id="categories">
+    <section
+      className="section category-section"
+      id="categories"
+    >
       <Container>
         <div className="section-heading section-heading--row">
           <div>
             <span>01 / COLLECTION</span>
             <h2>دسته‌بندی‌ها</h2>
-            <p>انتخابی ساده برای شروع خرید شما.</p>
+            <p>
+              مجموعه‌های منتخب EVA MODE را کشف کنید.
+            </p>
           </div>
 
           <Link href="/shop">
