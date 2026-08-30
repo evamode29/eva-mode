@@ -1,32 +1,37 @@
-import Link from "next/link";
-import { Container } from "@/components/ui/Container";
 
-export default function AdminPage() {
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Hero } from "@/components/home/Hero";
+import { CategorySection } from "@/components/home/CategorySection";
+import { ProductSection } from "@/components/home/ProductSection";
+import {
+  getActiveCategories,
+  getActiveProducts,
+} from "@/lib/products";
+
+export default async function HomePage() {
+  const [products, categories] = await Promise.all([
+    getActiveProducts(),
+    getActiveCategories(),
+  ]);
+
   return (
-    <main>
-      <section className="page-section">
-        <Container>
-          <div className="page-heading">
-            <span className="eyebrow">EVA MODE / ADMIN</span>
-            <h1>مدیریت فروشگاه</h1>
-            <p>مدیریت سفارش‌ها و اطلاعات فروشگاه</p>
-          </div>
+    <>
+      <Header />
 
-          <div className="admin-grid">
-            <Link href="/admin/orders" className="admin-card">
-              <span className="eyebrow">ORDERS</span>
-              <h2>سفارش‌ها</h2>
-              <p>مشاهده و مدیریت سفارش‌های مشتریان</p>
-            </Link>
+      <main>
+        <Hero />
 
-            <Link href="/shop" className="admin-card">
-              <span className="eyebrow">STORE</span>
-              <h2>مشاهده فروشگاه</h2>
-              <p>بازگشت به فروشگاه EVA MODE</p>
-            </Link>
-          </div>
-        </Container>
-      </section>
-    </main>
+        <CategorySection categories={categories} />
+
+        <ProductSection
+          title="منتخب EVA MODE"
+          eyebrow="02 / SELECTED"
+          products={products}
+        />
+      </main>
+
+      <Footer />
+    </>
   );
 }

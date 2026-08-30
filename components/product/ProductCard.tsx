@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import Link from "next/link";
 import type { ProductCardData } from "@/lib/products";
@@ -25,8 +26,8 @@ export function ProductCard({
       <div className="product-image-wrap">
         <Link
           href={`/products/${product.slug}`}
-          className="visual-placeholder product-placeholder"
-          aria-label={product.name}
+          className="product-placeholder"
+          aria-label={`مشاهده ${product.name}`}
         >
           {product.primaryImage ? (
             <Image
@@ -37,23 +38,33 @@ export function ProductCard({
               className="product-card-image"
             />
           ) : (
-            <span>IMAGE</span>
+            <span className="product-image-empty">
+              EVA MODE
+            </span>
           )}
         </Link>
 
         <button
           type="button"
           className="favorite-button"
-          aria-label="افزودن به علاقه‌مندی‌ها"
+          aria-label={`افزودن ${product.name} به علاقه‌مندی‌ها`}
         >
           ♡
         </button>
 
-        {discount > 0 && (
-          <div className="product-badge">
-            <Badge tone="sale">{discount}٪</Badge>
-          </div>
-        )}
+        <div className="product-badges">
+          {discount > 0 && (
+            <Badge tone="sale">
+              {discount}٪
+            </Badge>
+          )}
+
+          {product.isNew && (
+            <Badge tone="neutral">
+              جدید
+            </Badge>
+          )}
+        </div>
       </div>
 
       <div className="product-card-body">
@@ -62,7 +73,7 @@ export function ProductCard({
             {product.isActive ? "موجود" : "ناموجود"}
           </span>
 
-          {product.isNew && <span>جدید</span>}
+          <span>{product.brand}</span>
         </div>
 
         <Link
@@ -73,12 +84,18 @@ export function ProductCard({
         </Link>
 
         <div className="price-row">
-          <strong>{formatPrice(product.basePrice)}</strong>
+          <strong>
+            {formatPrice(product.basePrice)}
+          </strong>
+
           <span>تومان</span>
 
-          {product.compareAtPrice && (
-            <del>{formatPrice(product.compareAtPrice)}</del>
-          )}
+          {product.compareAtPrice &&
+            product.compareAtPrice > product.basePrice && (
+              <del>
+                {formatPrice(product.compareAtPrice)}
+              </del>
+            )}
         </div>
       </div>
     </article>
