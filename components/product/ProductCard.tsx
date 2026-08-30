@@ -44,18 +44,10 @@ export function ProductCard({
           )}
         </Link>
 
-        <button
-          type="button"
-          className="favorite-button"
-          aria-label={`افزودن ${product.name} به علاقه‌مندی‌ها`}
-        >
-          ♡
-        </button>
-
         <div className="product-badges">
           {discount > 0 && (
             <Badge tone="sale">
-              {discount}٪
+              {discount}٪ تخفیف
             </Badge>
           )}
 
@@ -64,16 +56,36 @@ export function ProductCard({
               جدید
             </Badge>
           )}
+
+          {product.isBestSeller && (
+            <Badge tone="neutral">
+              پرفروش
+            </Badge>
+          )}
         </div>
+
+        <button
+          type="button"
+          className="favorite-button"
+          aria-label={`افزودن ${product.name} به علاقه‌مندی‌ها`}
+        >
+          ♡
+        </button>
       </div>
 
       <div className="product-card-body">
         <div className="product-meta">
-          <span>
+          <span>{product.brand}</span>
+
+          <span
+            className={
+              product.isActive
+                ? "product-stock product-stock--available"
+                : "product-stock"
+            }
+          >
             {product.isActive ? "موجود" : "ناموجود"}
           </span>
-
-          <span>{product.brand}</span>
         </div>
 
         <Link
@@ -83,20 +95,31 @@ export function ProductCard({
           {product.name}
         </Link>
 
-        <div className="price-row">
-          <strong>
-            {formatPrice(product.basePrice)}
-          </strong>
+        {product.shortDescription && (
+          <p className="product-short-description">
+            {product.shortDescription}
+          </p>
+        )}
 
-          <span>تومان</span>
+        <div className="price-row">
+          <div className="current-price">
+            <strong>{formatPrice(product.basePrice)}</strong>
+            <span>تومان</span>
+          </div>
 
           {product.compareAtPrice &&
             product.compareAtPrice > product.basePrice && (
-              <del>
-                {formatPrice(product.compareAtPrice)}
-              </del>
+              <del>{formatPrice(product.compareAtPrice)}</del>
             )}
         </div>
+
+        <Link
+          href={`/products/${product.slug}`}
+          className="product-view-link"
+        >
+          مشاهده محصول
+          <span>←</span>
+        </Link>
       </div>
     </article>
   );

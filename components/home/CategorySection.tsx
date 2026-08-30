@@ -1,4 +1,5 @@
-﻿import Image from "next/image";
+﻿
+import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import type { Category } from "@/types";
@@ -20,15 +21,16 @@ export function CategorySection({
       <Container>
         <div className="section-heading section-heading--row">
           <div>
-            <span>01 / COLLECTION</span>
-            <h2>دسته‌بندی‌ها</h2>
+            <span>01 / SHOP BY CATEGORY</span>
+            <h2>دسته‌بندی‌های محبوب</h2>
             <p>
-              مجموعه‌های منتخب EVA MODE را کشف کنید.
+              مجموعه مورد علاقه خود را سریع‌تر پیدا کنید.
             </p>
           </div>
 
           <Link href="/shop">
-            مشاهده همه ←
+            مشاهده همه
+            <span>←</span>
           </Link>
         </div>
 
@@ -54,13 +56,20 @@ export function CategorySection({
                   </span>
                 )}
 
-                <span className="category-overlay">
-                  مشاهده محصولات
-                </span>
+                <div className="category-overlay">
+                  <span>مشاهده محصولات</span>
+                  <strong>←</strong>
+                </div>
               </div>
 
               <div className="category-card-info">
-                <h3>{category.name}</h3>
+                <div>
+                  <span>
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3>{category.name}</h3>
+                </div>
+
                 <span>مشاهده مجموعه ←</span>
               </div>
             </Link>

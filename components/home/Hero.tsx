@@ -1,4 +1,5 @@
-﻿import Image from "next/image";
+﻿
+import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 
@@ -9,7 +10,7 @@ export function Hero() {
         <div className="hero-grid">
           <div className="hero-copy">
             <span className="eyebrow">
-              EVA MODE / WOMEN'S ESSENTIALS
+              EVA MODE / NEW COLLECTION
             </span>
 
             <h1>
@@ -19,8 +20,11 @@ export function Hero() {
             </h1>
 
             <p>
-              انتخابی از لباس زیر زنانه با تمرکز بر
-              ظرافت، کیفیت و راحتی.
+              مجموعه‌ای منتخب از لباس زیر زنانه؛
+              <br />
+              برای زنانی که کیفیت، ظرافت و راحتی را
+              <br />
+              هم‌زمان انتخاب می‌کنند.
             </p>
 
             <div className="hero-actions">
@@ -29,10 +33,11 @@ export function Hero() {
                 className="eva-button eva-button--primary"
               >
                 مشاهده مجموعه
+                <span>←</span>
               </Link>
 
               <Link
-                href="/shop?sort=newest"
+                href="/shop?sort=new"
                 className="eva-button eva-button--secondary"
               >
                 جدیدترین‌ها
@@ -40,16 +45,27 @@ export function Hero() {
             </div>
 
             <div className="hero-trust">
-              <span>کیفیت انتخاب‌شده</span>
-              <span>ارسال مطمئن</span>
-              <span>خرید آسان</span>
+              <div>
+                <strong>01</strong>
+                <span>انتخاب دقیق</span>
+              </div>
+
+              <div>
+                <strong>02</strong>
+                <span>کیفیت مطلوب</span>
+              </div>
+
+              <div>
+                <strong>03</strong>
+                <span>خرید آسان</span>
+              </div>
             </div>
           </div>
 
           <div className="hero-image-wrap">
             <Image
               src="/images/hero.jpg"
-              alt="مجموعه EVA MODE"
+              alt="مجموعه جدید EVA MODE"
               fill
               priority
               sizes="(max-width: 719px) 100vw, 55vw"
@@ -60,6 +76,11 @@ export function Hero() {
               <span>NEW COLLECTION</span>
               <strong>EVA MODE</strong>
             </div>
+
+            <Link href="/shop" className="hero-image-link">
+              خرید مجموعه
+              <span>←</span>
+            </Link>
           </div>
         </div>
       </Container>
