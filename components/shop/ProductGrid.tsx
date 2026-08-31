@@ -1,18 +1,29 @@
-import { ProductCard } from "@/components/product/ProductCard";
 import type { ProductCardData } from "@/lib/products";
+import { ProductCard } from "@/components/product/ProductCard";
 
 export function ProductGrid({
   items,
 }: {
   items: ProductCardData[];
 }) {
-  if (items.length === 0) {
+  if (!items.length) {
     return (
-      <div className="empty-state">
+      <div className="shop-empty">
+        <span className="shop-empty-number">00</span>
+
         <h2>محصولی پیدا نشد</h2>
+
         <p>
-          محصولی مطابق جستجوی شما وجود ندارد.
+          عبارت جستجو یا فیلتر انتخابی خود را تغییر دهید.
         </p>
+
+        <a
+          href="/shop"
+          className="eva-button eva-button--primary"
+        >
+          مشاهده همه محصولات
+          <span>←</span>
+        </a>
       </div>
     );
   }
