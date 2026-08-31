@@ -9,7 +9,7 @@ const statuses = [
   ["shipped", "ارسال شده"],
   ["delivered", "تحویل شده"],
   ["cancelled", "لغو شده"],
-];
+] as const;
 
 export default function OrderStatus({
   orderId,
@@ -22,6 +22,13 @@ export default function OrderStatus({
   const [loading, setLoading] = useState(false);
 
   async function updateStatus(value: string) {
+    if (value === status) {
+      return;
+    }
+
+    const previousStatus = status;
+
+    setStatus(value);
     setLoading(true);
 
     try {
@@ -39,11 +46,10 @@ export default function OrderStatus({
       );
 
       if (!response.ok) {
-        throw new Error();
+        throw new Error("Status update failed");
       }
-
-      setStatus(value);
     } catch {
+      setStatus(previousStatus);
       alert("تغییر وضعیت انجام نشد.");
     } finally {
       setLoading(false);
@@ -58,6 +64,7 @@ export default function OrderStatus({
         updateStatus(event.target.value)
       }
       aria-label="وضعیت سفارش"
+      className="rounded-lg border border-[#ded5cc] bg-white px-3 py-2 text-sm text-[#24211f] outline-none transition focus:border-[#9a8170]"
     >
       {statuses.map(([value, label]) => (
         <option key={value} value={value}>
