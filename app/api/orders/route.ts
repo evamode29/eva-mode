@@ -2,449 +2,486 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase-server";
 
 type OrderItemInput = {
-  productId: string;
-  variantId: string;
-  quantity: number;
+productId: string;
+variantId: string;
+quantity: number;
 };
 
-type OrderRequest = {
-  customer: {
-    fullName: string;
-    mobile: string;
-    province: string;
-    city: string;
-    address: string;
-    postalCode: string;
-  };
-  items: OrderItemInput[];
+type CreateOrderBody = {
+customerFullName?: string;
+customerMobile?: string;
+province?: string;
+city?: string;
+address?: string;
+postalCode?: string;
+items?: OrderItemInput[];
 };
 
-function generateOrderNumber() {
-  const timestamp = Date.now().toString().slice(-8);
-  const random = Math.floor(
-    1000 + Math.random() * 9000
-  );
+type VariantRow = {
+id: string;
+product_id: string;
+sku: string;
+stock: number;
+price: number;
+is_active: boolean;
+color_id: string | null;
+size_id: string | null;
+};
 
-  return `EVA-${timestamp}-${random}`;
+function normalizeText(value: unknown): string {
+return typeof value === "string" ? value.trim() : "";
+}
+
+function isValidIranianMobile(mobile: string): boolean {
+return /^09\d{9}$/.test(mobile);
+}
+
+function isValidPostalCode(postalCode: string): boolean {
+return /^\d{10}$/.test(postalCode);
+}
+
+function generateOrderNumber(): string {
+const now = new Date();
+
+const date =
+`${now.getFullYear()}` +
+`${String(now.getMonth() + 1).padStart(2, "0")}` +
+`${String(now.getDate()).padStart(2, "0")}`;
+
+const random = Math.floor(
+100000 + Math.random() * 900000
+);
+
+return `EVA-${date}-${random}`;
 }
 
 export async function POST(request: Request) {
-  try {
-    const body =
-      (await request.json()) as OrderRequest;
-
-    /* =========================================
-       VALIDATE CUSTOMER
-    ========================================= */
-
-    if (
-      !body.customer ||
-      !body.customer.fullName?.trim() ||
-      !body.customer.mobile?.trim() ||
-      !body.customer.province?.trim() ||
-      !body.customer.city?.trim() ||
-      !body.customer.address?.trim() ||
-      !body.customer.postalCode?.trim()
-    ) {
-      return NextResponse.json(
-        {
-          error: "اطلاعات گیرنده کامل نیست.",
-        },
-        { status: 400 }
-      );
-    }
-
-    /* =========================================
-       VALIDATE CART
-    ========================================= */
-
-    if (
-      !Array.isArray(body.items) ||
-      body.items.length === 0
-    ) {
-      return NextResponse.json(
-        {
-          error: "سبد خرید خالی است.",
-        },
-        { status: 400 }
-      );
-    }
-
-    /* =========================================
-       VALIDATE ITEMS
-    ========================================= */
-
-    for (const item of body.items) {
-      if (
-        !item.variantId ||
-        !item.productId ||
-        !Number.isInteger(item.quantity) ||
-        item.quantity <= 0
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "اطلاعات یکی از محصولات نامعتبر است.",
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    /* =========================================
-       GET VARIANTS FROM SUPABASE
-    ========================================= */
-
-    const variantIds = [
-      ...new Set(
-        body.items.map(
-          (item) => item.variantId
-        )
-      ),
-    ];
-
-    const { data: variants, error } =
-      await supabaseServer
-        .from("product_variants")
-        .select(
-          `
-          id,
-          product_id,
-          sku,
-          price,
-          stock,
-          is_active,
-
-          color:colors (
-            name
-          ),
-
-          size:sizes (
-            name
-          ),
-
-          product:products (
-            name
-          )
-        `
-        )
-        .in("id", variantIds);
-
-    if (error) {
-      throw new Error(
-        `خطا در دریافت محصولات: ${error.message}`
-      );
-    }
-
-    if (
-      !variants ||
-      variants.length !== variantIds.length
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "یکی از محصولات دیگر در دسترس نیست.",
-        },
-        { status: 400 }
-      );
-    }
-
-    /* =========================================
-       CALCULATE ORDER
-    ========================================= */
-
-    let subtotal = 0;
-
-    const orderItems: {
-      product_id: string;
-      variant_id: string;
-      product_name: string;
-      sku: string;
-      color_name: string | null;
-      size_name: string | null;
-      unit_price: number;
-      quantity: number;
-      line_total: number;
-    }[] = [];
-
-    for (const item of body.items) {
-      const variant = variants.find(
-        (value) =>
-          value.id === item.variantId
-      );
-
-      if (!variant) {
-        return NextResponse.json(
-          {
-            error:
-              "Variant محصول پیدا نشد.",
-          },
-          { status: 400 }
-        );
-      }
-
-      /* =====================================
-         PRODUCT CHECK
-      ===================================== */
-
-      if (
-        variant.product_id !==
-        item.productId
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "اطلاعات محصول معتبر نیست.",
-          },
-          { status: 400 }
-        );
-      }
-
-      /* =====================================
-         ACTIVE CHECK
-      ===================================== */
-
-      if (!variant.is_active) {
-        return NextResponse.json(
-          {
-            error:
-              "یکی از محصولات غیرفعال شده است.",
-          },
-          { status: 400 }
-        );
-      }
-
-      /* =====================================
-         STOCK CHECK
-      ===================================== */
-
-      if (
-        variant.stock < item.quantity
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "موجودی یکی از محصولات کافی نیست.",
-          },
-          { status: 400 }
-        );
-      }
-
-      /* =====================================
-         PRICE
-      ===================================== */
-
-      const unitPrice = Number(
-        variant.price
-      );
-
-      const lineTotal =
-        unitPrice * item.quantity;
-
-      subtotal += lineTotal;
-
-      /* =====================================
-         RELATIONS
-      ===================================== */
-
-      const color = Array.isArray(
-        variant.color
-      )
-        ? variant.color[0]
-        : variant.color;
-
-      const size = Array.isArray(
-        variant.size
-      )
-        ? variant.size[0]
-        : variant.size;
-
-      const product = Array.isArray(
-        variant.product
-      )
-        ? variant.product[0]
-        : variant.product;
-
-      orderItems.push({
-        product_id:
-          variant.product_id,
-
-        variant_id:
-          variant.id,
-
-        product_name:
-          product?.name ?? "محصول",
-
-        sku:
-          variant.sku,
-
-        color_name:
-          color?.name ?? null,
-
-        size_name:
-          size?.name ?? null,
-
-        unit_price:
-          unitPrice,
-
-        quantity:
-          item.quantity,
-
-        line_total:
-          lineTotal,
-      });
-    }
-
-    /* =========================================
-       SHIPPING
-    ========================================= */
-
-    const shippingAmount = 0;
-
-    const totalAmount =
-      subtotal + shippingAmount;
-
-    /* =========================================
-       ORDER NUMBER
-    ========================================= */
-
-    const orderNumber =
-      generateOrderNumber();
-
-    /* =========================================
-       CREATE ORDER
-    ========================================= */
-
-    const {
-      data: order,
-      error: orderError,
-    } = await supabaseServer
-      .from("orders")
-      .insert({
-        order_number:
-          orderNumber,
-
-        customer_full_name:
-          body.customer.fullName.trim(),
-
-        customer_mobile:
-          body.customer.mobile.trim(),
-
-        province:
-          body.customer.province.trim(),
-
-        city:
-          body.customer.city.trim(),
-
-        address:
-          body.customer.address.trim(),
-
-        postal_code:
-          body.customer.postalCode.trim(),
-
-        subtotal,
-
-        shipping_amount:
-          shippingAmount,
-
-        total_amount:
-          totalAmount,
-
-        status:
-          "pending",
-
-        payment_status:
-          "pending",
-      })
-      .select(
-        "id, order_number"
-      )
-      .single();
-
-    if (
-      orderError ||
-      !order
-    ) {
-      throw new Error(
-        orderError?.message ??
-          "ثبت سفارش ناموفق بود."
-      );
-    }
-
-    /* =========================================
-       CREATE ORDER ITEMS
-    ========================================= */
-
-    const itemsWithOrderId =
-      orderItems.map(
-        (item) => ({
-          ...item,
-          order_id:
-            order.id,
-        })
-      );
-
-    const {
-      error: itemsError,
-    } = await supabaseServer
-      .from("order_items")
-      .insert(
-        itemsWithOrderId
-      );
-
-    /* =========================================
-       ROLLBACK ORDER
-    ========================================= */
-
-    if (itemsError) {
-      await supabaseServer
-        .from("orders")
-        .delete()
-        .eq(
-          "id",
-          order.id
-        );
-
-      throw new Error(
-        itemsError.message
-      );
-    }
-
-    /* =========================================
-       SUCCESS
-    ========================================= */
-
-    return NextResponse.json({
-      success: true,
-
-      orderId:
-        order.id,
-
-      orderNumber:
-        order.order_number,
-
-      subtotal,
-
-      shippingAmount,
-
-      totalAmount,
-    });
-  } catch (error) {
-    console.error(
-      "Create order error:",
-      error
-    );
-
+let createdOrderId: string | null = null;
+
+try {
+const body = (await request.json()) as CreateOrderBody;
+
+const customerFullName = normalizeText(
+  body.customerFullName
+);
+
+const customerMobile = normalizeText(
+  body.customerMobile
+);
+
+const province = normalizeText(body.province);
+const city = normalizeText(body.city);
+const address = normalizeText(body.address);
+const postalCode = normalizeText(body.postalCode);
+
+if (
+  !customerFullName ||
+  !customerMobile ||
+  !province ||
+  !city ||
+  !address ||
+  !postalCode
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "لطفاً همه اطلاعات ارسال را کامل کنید.",
+    },
+    { status: 400 }
+  );
+}
+
+if (!isValidIranianMobile(customerMobile)) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "شماره موبایل واردشده معتبر نیست.",
+    },
+    { status: 400 }
+  );
+}
+
+if (!isValidPostalCode(postalCode)) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "کد پستی باید ۱۰ رقم باشد.",
+    },
+    { status: 400 }
+  );
+}
+
+if (!Array.isArray(body.items) || body.items.length === 0) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "سبد خرید خالی است.",
+    },
+    { status: 400 }
+  );
+}
+
+const items: OrderItemInput[] = body.items.map(
+  (item) => ({
+    productId: normalizeText(item.productId),
+    variantId: normalizeText(item.variantId),
+    quantity: Number(item.quantity),
+  })
+);
+
+for (const item of items) {
+  if (
+    !item.productId ||
+    !item.variantId ||
+    !Number.isInteger(item.quantity) ||
+    item.quantity < 1 ||
+    item.quantity > 20
+  ) {
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : "خطایی در ثبت سفارش رخ داد.",
+        success: false,
+        error: "اطلاعات یکی از محصولات سفارش نامعتبر است.",
       },
-      {
-        status: 500,
-      }
+      { status: 400 }
     );
   }
+}
+
+const variantIds = [
+  ...new Set(
+    items.map((item) => item.variantId)
+  ),
+];
+
+const { data: variants, error: variantsError } =
+  await supabaseServer
+    .from("product_variants")
+    .select(
+      `
+      id,
+      product_id,
+      sku,
+      stock,
+      price,
+      is_active,
+      color_id,
+      size_id
+    `
+    )
+    .in("id", variantIds);
+
+if (variantsError) {
+  console.error(
+    "Load variants error:",
+    variantsError
+  );
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: "خطا در بررسی موجودی محصولات.",
+    },
+    { status: 500 }
+  );
+}
+
+if (
+  !variants ||
+  variants.length !== variantIds.length
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "یکی از محصولات دیگر موجود نیست.",
+    },
+    { status: 400 }
+  );
+}
+
+const variantMap = new Map<string, VariantRow>();
+
+for (const variant of variants) {
+  variantMap.set(
+    variant.id,
+    variant as VariantRow
+  );
+}
+
+const orderItems = [];
+let totalAmount = 0;
+
+for (const item of items) {
+  const variant = variantMap.get(
+    item.variantId
+  );
+
+  if (!variant) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "تنوع محصول پیدا نشد.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (
+    variant.product_id !== item.productId
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "محصول و تنوع انتخاب‌شده هماهنگ نیستند.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (!variant.is_active) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `محصول با SKU ${variant.sku} فعال نیست.`,
+      },
+      { status: 400 }
+    );
+  }
+
+  if (
+    Number(variant.stock) < item.quantity
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `موجودی محصول با SKU ${variant.sku} کافی نیست.`,
+      },
+      { status: 400 }
+    );
+  }
+
+  const unitPrice = Number(
+    variant.price
+  );
+
+  if (
+    !Number.isFinite(unitPrice) ||
+    unitPrice < 0
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "قیمت یکی از محصولات نامعتبر است.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lineTotal =
+    unitPrice * item.quantity;
+
+  totalAmount += lineTotal;
+
+  orderItems.push({
+    product_id: item.productId,
+    variant_id: item.variantId,
+    product_name: "محصول EVA MODE",
+    sku: variant.sku,
+    color_name: null,
+    size_name: null,
+    unit_price: unitPrice,
+    quantity: item.quantity,
+    line_total: lineTotal,
+  });
+}
+
+if (
+  !Number.isFinite(totalAmount) ||
+  totalAmount <= 0
+) {
+  return NextResponse.json(
+    {
+      success: false,
+      error: "مبلغ سفارش نامعتبر است.",
+    },
+    { status: 400 }
+  );
+}
+
+const orderNumber =
+  generateOrderNumber();
+
+const { data: order, error: orderError } =
+  await supabaseServer
+    .from("orders")
+    .insert({
+      order_number: orderNumber,
+      customer_full_name:
+        customerFullName,
+      customer_mobile:
+        customerMobile,
+      province,
+      city,
+      address,
+      postal_code: postalCode,
+      subtotal: totalAmount,
+      shipping_amount: 0,
+      total_amount: totalAmount,
+      status: "pending",
+      payment_status: "pending",
+    })
+    .select(
+      "id, order_number, subtotal, shipping_amount, total_amount, status, payment_status"
+    )
+    .single();
+
+if (orderError || !order) {
+  console.error(
+    "Create order error:",
+    orderError
+  );
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: "ثبت سفارش انجام نشد.",
+    },
+    { status: 500 }
+  );
+}
+
+createdOrderId = order.id;
+
+const itemsToInsert =
+  orderItems.map((item) => ({
+    ...item,
+    order_id: order.id,
+  }));
+
+const { error: itemsError } =
+  await supabaseServer
+    .from("order_items")
+    .insert(itemsToInsert);
+
+if (itemsError) {
+  console.error(
+    "Create order items error:",
+    itemsError
+  );
+
+  await supabaseServer
+    .from("orders")
+    .delete()
+    .eq("id", order.id);
+
+  createdOrderId = null;
+
+  return NextResponse.json(
+    {
+      success: false,
+      error: "اقلام سفارش ثبت نشدند.",
+    },
+    { status: 500 }
+  );
+}
+
+/*
+ * Decrease stock atomically through Supabase RPC.
+ */
+
+const { error: stockError } =
+  await supabaseServer.rpc(
+    "decrement_order_stock",
+    {
+      p_items: items.map((item) => ({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+      })),
+    }
+  );
+
+if (stockError) {
+  console.error(
+    "Decrement stock error:",
+    stockError
+  );
+
+  await supabaseServer
+    .from("order_items")
+    .delete()
+    .eq("order_id", order.id);
+
+  await supabaseServer
+    .from("orders")
+    .delete()
+    .eq("id", order.id);
+
+  createdOrderId = null;
+
+  return NextResponse.json(
+    {
+      success: false,
+      error:
+        stockError.message ===
+        "insufficient stock"
+          ? "موجودی یکی از محصولات کافی نیست."
+          : "رزرو موجودی انجام نشد.",
+    },
+    { status: 409 }
+  );
+}
+
+return NextResponse.json(
+  {
+    success: true,
+    message: "سفارش با موفقیت ثبت شد.",
+    order: {
+      id: order.id,
+      orderNumber:
+        order.order_number,
+      subtotal:
+        order.subtotal,
+      shippingAmount:
+        order.shipping_amount,
+      totalAmount:
+        order.total_amount,
+      status:
+        order.status,
+      paymentStatus:
+        order.payment_status,
+    },
+  },
+  { status: 201 }
+);
+
+} catch (error) {
+console.error(
+"Create order unexpected error:",
+error
+);
+
+if (createdOrderId) {
+  await supabaseServer
+    .from("order_items")
+    .delete()
+    .eq(
+      "order_id",
+      createdOrderId
+    );
+
+  await supabaseServer
+    .from("orders")
+    .delete()
+    .eq("id", createdOrderId);
+}
+
+return NextResponse.json(
+  {
+    success: false,
+    error: "خطایی در ثبت سفارش رخ داد.",
+  },
+  { status: 500 }
+);
+
+}
 }
