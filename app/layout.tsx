@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./shabnam.css";
 import { CartProvider } from "@/components/cart/CartContext";
 
 export const metadata: Metadata = {
