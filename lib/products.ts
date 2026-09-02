@@ -100,164 +100,109 @@ export type ProductDetails = {
   sizes: Size[];
 };
 
-/* =========================================================
-   HELPERS
-========================================================= */
-
 function isProductNew(createdAt: string): boolean {
   const created = new Date(createdAt).getTime();
 
-  if (Number.isNaN(created)) {
-    return false;
-  }
+  if (Number.isNaN(created)) return false;
 
-  const now = Date.now();
-
-  const thirtyDays =
-    30 * 24 * 60 * 60 * 1000;
-
-  return now - created <= thirtyDays;
+  return Date.now() - created <= 30 * 24 * 60 * 60 * 1000;
 }
 
-/* =========================================================
-   PRODUCT MAPPER
-========================================================= */
-
-function mapProduct(row: ProductRow): Product {
+function mapProduct(
+  row: ProductRow,
+  categorySlug?: string
+): Product {
   return {
     id: row.id,
     slug: row.slug,
     name: row.name,
-
     shortDescription: row.description ?? "",
     description: row.description ?? "",
-
     categoryId: row.category_id,
-
+    categorySlug,
     brand: "EVA MODE",
-
     basePrice: Number(row.base_price),
-
     compareAtPrice: undefined,
-
     isFeatured: false,
-
-    /*
-     * محصول جدید بر اساس تاریخ ثبت در دیتابیس
-     */
     isNew: isProductNew(row.created_at),
-
-    /*
-     * فعلاً تا زمانی که سیستم سفارش/فروش داشته باشیم
-     * پرفروش بودن را حدس نمی‌زنیم.
-     */
     isBestSeller: false,
-
     isActive: row.is_active,
-
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
-/* =========================================================
-   IMAGE MAPPER
-========================================================= */
-
-function mapProductImage(
-  row: ProductImageRow
-): ProductImage {
+function mapProductImage(row: ProductImageRow): ProductImage {
   return {
     id: row.id,
-
     productId: row.product_id,
-
     src: row.image_url,
-
     alt: row.alt_text ?? "",
-
     sortOrder: row.sort_order,
-
     isPrimary: row.is_primary,
-
     colorId: row.color_id ?? null,
   };
 }
 
-/* =========================================================
-   ACTIVE PRODUCTS
-========================================================= */
+export async function getActiveProducts(): Promise<ProductCardData[]> {
+  const [{ data: productData, error: productError }, { data: categoryData, error: categoryError }] =
+    await Promise.all([
+      supabase
+        .from("products")
+        .select(`
+          id,
+          slug,
+          name,
+          description,
+          base_price,
+          category_id,
+          is_active,
+          created_at,
+          updated_at,
+          product_images (
+            id,
+            product_id,
+            image_url,
+            alt_text,
+            sort_order,
+            is_primary,
+            color_id
+          )
+        `)
+        .eq("is_active", true)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("categories")
+        .select("id, slug")
+        .eq("is_active", true),
+    ]);
 
-export async function getActiveProducts(): Promise<
-  ProductCardData[]
-> {
-  const { data, error } = await supabase
-    .from("products")
-    .select(`
-      id,
-      slug,
-      name,
-      description,
-      base_price,
-      category_id,
-      is_active,
-      created_at,
-      updated_at,
-
-      product_images (
-        id,
-        product_id,
-        image_url,
-        alt_text,
-        sort_order,
-        is_primary,
-        color_id
-      )
-    `)
-    .eq("is_active", true)
-    .order("created_at", {
-      ascending: false,
-    });
-
-  if (error) {
-    throw new Error(
-      `Failed to fetch products: ${error.message}`
-    );
+  if (productError) {
+    throw new Error(`Failed to fetch products: ${productError.message}`);
   }
 
-  const rows =
-    (data ?? []) as unknown as ProductCardRow[];
+  if (categoryError) {
+    throw new Error(`Failed to fetch categories: ${categoryError.message}`);
+  }
+
+  const categorySlugs = new Map(
+    (categoryData ?? []).map((category) => [category.id, category.slug])
+  );
+
+  const rows = (productData ?? []) as unknown as ProductCardRow[];
 
   return rows.map((row) => {
     const images = (row.product_images ?? [])
-      .map((image) =>
-        mapProductImage({
-          ...image,
-          created_at: "",
-        })
-      )
-      .sort(
-        (a, b) =>
-          a.sortOrder - b.sortOrder
-      );
-
-    const primaryImage =
-      images.find(
-        (image) => image.isPrimary
-      ) ??
-      images[0] ??
-      null;
+      .map((image) => mapProductImage({ ...image, created_at: "" }))
+      .sort((a, b) => a.sortOrder - b.sortOrder);
 
     return {
-      ...mapProduct(row),
-      primaryImage,
+      ...mapProduct(row, categorySlugs.get(row.category_id)),
+      primaryImage:
+        images.find((image) => image.isPrimary) ?? images[0] ?? null,
     };
   });
 }
-
-/* =========================================================
-   PRODUCT BY SLUG
-========================================================= */
 
 export async function getProductBySlug(
   slug: string
@@ -274,7 +219,6 @@ export async function getProductBySlug(
       is_active,
       created_at,
       updated_at,
-
       category:categories (
         id,
         name,
@@ -283,7 +227,6 @@ export async function getProductBySlug(
         is_active,
         created_at
       ),
-
       product_images (
         id,
         product_id,
@@ -294,7 +237,6 @@ export async function getProductBySlug(
         color_id,
         created_at
       ),
-
       product_variants (
         id,
         product_id,
@@ -306,7 +248,6 @@ export async function getProductBySlug(
         is_active,
         created_at,
         updated_at,
-
         color:colors (
           id,
           name,
@@ -314,7 +255,6 @@ export async function getProductBySlug(
           hex_code,
           created_at
         ),
-
         size:sizes (
           id,
           name,
@@ -329,194 +269,92 @@ export async function getProductBySlug(
     .maybeSingle();
 
   if (error) {
-    throw new Error(
-      `Failed to fetch product: ${error.message}`
-    );
+    throw new Error(`Failed to fetch product: ${error.message}`);
   }
 
-  if (!data) {
-    return null;
-  }
+  if (!data) return null;
 
-  const row =
-    data as unknown as ProductRow & {
-      category:
-        | CategoryRow
-        | CategoryRow[]
-        | null;
+  const row = data as unknown as ProductRow & {
+    category: CategoryRow | CategoryRow[] | null;
+    product_images: ProductImageRow[] | null;
+    product_variants: ProductVariantRow[] | null;
+  };
 
-      product_images:
-        | ProductImageRow[]
-        | null;
+  const categoryRow = Array.isArray(row.category)
+    ? row.category[0] ?? null
+    : row.category;
 
-      product_variants:
-        | ProductVariantRow[]
-        | null;
-    };
+  const category: Category | null = categoryRow
+    ? {
+        id: categoryRow.id,
+        name: categoryRow.name,
+        slug: categoryRow.slug,
+        description: categoryRow.description ?? "",
+        parentId: null,
+        image: "",
+        isActive: categoryRow.is_active,
+        sortOrder: 0,
+      }
+    : null;
 
-  /* =======================================================
-     PRODUCT
-  ======================================================= */
+  const images = (row.product_images ?? [])
+    .sort((a, b) => a.sort_order - b.sort_order)
+    .map(mapProductImage);
 
-  const product = mapProduct(row);
-
-  /* =======================================================
-     CATEGORY
-  ======================================================= */
-
-  const categoryRow =
-    Array.isArray(row.category)
-      ? row.category[0] ?? null
-      : row.category;
-
-  const category: Category | null =
-    categoryRow
-      ? {
-          id: categoryRow.id,
-
-          name: categoryRow.name,
-
-          slug: categoryRow.slug,
-
-          description:
-            categoryRow.description ?? "",
-
-          parentId: null,
-
-          image: "",
-
-          isActive:
-            categoryRow.is_active,
-
-          sortOrder: 0,
-        }
-      : null;
-
-  /* =======================================================
-     IMAGES
-  ======================================================= */
-
-  const images: ProductImage[] =
-    (row.product_images ?? [])
-      .sort(
-        (a, b) =>
-          a.sort_order - b.sort_order
-      )
-      .map(mapProductImage);
-
-  /* =======================================================
-     VARIANTS
-  ======================================================= */
-
-  const variants: ProductVariant[] =
-    (row.product_variants ?? []).map(
-      (variant) => ({
-        id: variant.id,
-
-        productId:
-          variant.product_id,
-
-        sku: variant.sku,
-
-        colorId:
-          variant.color_id ?? "",
-
-        sizeId:
-          variant.size_id ?? "",
-
-        price:
-          Number(variant.price),
-
-        stock:
-          Number(variant.stock),
-
-        isActive:
-          variant.is_active,
-      })
-    );
-
-  /* =======================================================
-     COLORS + SIZES
-  ======================================================= */
+  const variants = (row.product_variants ?? []).map((variant) => ({
+    id: variant.id,
+    productId: variant.product_id,
+    sku: variant.sku,
+    colorId: variant.color_id ?? "",
+    sizeId: variant.size_id ?? "",
+    price: Number(variant.price),
+    stock: Number(variant.stock),
+    isActive: variant.is_active,
+  }));
 
   const colors: Color[] = [];
   const sizes: Size[] = [];
 
-  for (
-    const variant of
-    row.product_variants ?? []
-  ) {
-    const colorRow =
-      Array.isArray(variant.color)
-        ? variant.color[0] ?? null
-        : variant.color;
+  for (const variant of row.product_variants ?? []) {
+    const colorRow = Array.isArray(variant.color)
+      ? variant.color[0] ?? null
+      : variant.color;
 
-    if (
-      colorRow &&
-      !colors.some(
-        (color) =>
-          color.id === colorRow.id
-      )
-    ) {
+    if (colorRow && !colors.some((color) => color.id === colorRow.id)) {
       colors.push({
         id: colorRow.id,
-
         name: colorRow.name,
-
         slug: colorRow.slug,
-
         hex: colorRow.hex_code,
       });
     }
 
-    const sizeRow =
-      Array.isArray(variant.size)
-        ? variant.size[0] ?? null
-        : variant.size;
+    const sizeRow = Array.isArray(variant.size)
+      ? variant.size[0] ?? null
+      : variant.size;
 
-    if (
-      sizeRow &&
-      !sizes.some(
-        (size) =>
-          size.id === sizeRow.id
-      )
-    ) {
+    if (sizeRow && !sizes.some((size) => size.id === sizeRow.id)) {
       sizes.push({
         id: sizeRow.id,
-
         name: sizeRow.name,
-
         type: "apparel",
-
-        sortOrder:
-          sizeRow.sort_order,
+        sortOrder: sizeRow.sort_order,
       });
     }
   }
 
-  sizes.sort(
-    (a, b) =>
-      a.sortOrder - b.sortOrder
-  );
-
-  /* =======================================================
-     RESULT
-  ======================================================= */
+  sizes.sort((a, b) => a.sortOrder - b.sortOrder);
 
   return {
-    product,
-
+    product: mapProduct(row, category?.slug),
     category,
-
     images,
-
     variants,
-
     colors,
-
     sizes,
   };
 }
+
 export async function getActiveCategories(): Promise<Category[]> {
   const { data, error } = await supabase
     .from("categories")
@@ -529,14 +367,10 @@ export async function getActiveCategories(): Promise<Category[]> {
       created_at
     `)
     .eq("is_active", true)
-    .order("name", {
-      ascending: true,
-    });
+    .order("name", { ascending: true });
 
   if (error) {
-    throw new Error(
-      `Failed to fetch categories: ${error.message}`
-    );
+    throw new Error(`Failed to fetch categories: ${error.message}`);
   }
 
   return (data ?? []).map((category) => ({
