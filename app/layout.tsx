@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./shabnam.css";
 import "./eva-commerce.css";
+import "./home-polish.css";
 import { CartProvider } from "@/components/cart/CartContext";
 
 export const metadata: Metadata = {
