@@ -1,6 +1,101 @@
 @import "tailwindcss";
 
 /* =========================================================
+   EVA MODE — SHABNAM FONT
+========================================================= */
+
+@font-face {
+  font-family: "Shabnam";
+  src: url("/fonts/Shabnam-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam";
+  src: url("/fonts/Shabnam-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam";
+  src: url("/fonts/Shabnam.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam";
+  src: url("/fonts/Shabnam-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shabnam";
+  src: url("/fonts/Shabnam-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* =========================================================
+   EVA MODE — GLOBAL TYPOGRAPHY
+========================================================= */
+
+:root {
+  --eva-font: "Shabnam", sans-serif;
+}
+
+html,
+body {
+  font-family: "Shabnam", sans-serif;
+}
+
+body {
+  font-family: "Shabnam", sans-serif;
+  font-weight: 400;
+}
+
+button,
+input,
+textarea,
+select,
+option {
+  font-family: "Shabnam", sans-serif;
+}
+
+a,
+button,
+input,
+textarea,
+select,
+label {
+  font-family: "Shabnam", sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+strong,
+small,
+nav {
+  font-family: "Shabnam", sans-serif;
+}
+
+@import "tailwindcss";
+
+/* =========================================================
    EVA MODE — LUXURY GLOBAL DESIGN SYSTEM
 ========================================================= */
 
@@ -3514,7 +3609,6 @@ img {
   line-height: 1.8;
   text-decoration: none;
 }
-
 .product-name:hover {
   color: var(--eva-accent);
 }
@@ -6539,6 +6633,207 @@ img {
   .shop-mobile-filter-button,
   .shop-mobile-category button,
   .shop-advanced-filter {
+    transition: none;
+  }
+}
+/* =========================================================
+   EVA MODE — DIGISTYLE INSPIRED SEARCH
+========================================================= */
+
+.shop-search {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 520px;
+  min-width: 0;
+}
+
+.shop-search-field {
+  display: block;
+  width: 100%;
+}
+
+.shop-search-input-container {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  height: 48px;
+
+  padding: 0 46px 0 42px;
+
+  border-bottom: 1px solid var(--eva-border);
+
+  background: transparent;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.shop-search-input-container:focus-within {
+  border-color: var(--eva-text);
+
+  box-shadow:
+    0 1px 0 var(--eva-text);
+}
+
+.shop-search-input-container input {
+  width: 100%;
+  height: 100%;
+
+  padding: 0;
+
+  border: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: var(--eva-text);
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+
+  text-overflow: ellipsis;
+}
+
+.shop-search-input-container input::placeholder {
+  color: transparent;
+}
+
+.shop-search-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+
+  transform: translateY(-50%);
+
+  color: var(--eva-text);
+
+  font-size: 21px;
+  line-height: 1;
+
+  pointer-events: none;
+}
+
+.shop-search-placeholder {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+
+  padding-right: 46px;
+
+  gap: 5px;
+
+  color: var(--eva-text-muted);
+
+  font-size: 11px;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.2s ease;
+}
+
+.shop-search-placeholder span {
+  color: var(--eva-text-muted);
+  font-weight: 400;
+}
+
+.shop-search-placeholder strong {
+  color: var(--eva-text);
+  font-weight: 700;
+
+  direction: ltr;
+}
+
+.shop-search-clear {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+
+  width: 28px;
+  height: 28px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateY(-50%);
+
+  border: 0;
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: var(--eva-text-muted);
+
+  font-family: inherit;
+  font-size: 19px;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.shop-search-clear:hover {
+  background: var(--eva-surface-soft);
+  color: var(--eva-text);
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 720px) {
+  .shop-search {
+    max-width: none;
+  }
+
+  .shop-search-input-container {
+    height: 45px;
+
+    padding-right: 42px;
+    padding-left: 38px;
+  }
+
+  .shop-search-placeholder {
+    padding-right: 42px;
+
+    font-size: 10px;
+  }
+
+  .shop-search-icon {
+    right: 10px;
+    font-size: 19px;
+  }
+
+  .shop-search-clear {
+    left: 7px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-search-input-container {
+    height: 43px;
+  }
+
+  .shop-search-placeholder {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-search-input-container,
+  .shop-search-placeholder,
+  .shop-search-clear {
     transition: none;
   }
 }

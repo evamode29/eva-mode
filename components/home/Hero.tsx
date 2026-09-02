@@ -1,5 +1,4 @@
-﻿
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 
@@ -20,11 +19,9 @@ export function Hero() {
             </h1>
 
             <p>
-              مجموعه‌ای منتخب از لباس زیر زنانه؛
+              انتخابی از لباس زیر زنانه با تمرکز بر
               <br />
-              برای زنانی که کیفیت، ظرافت و راحتی را
-              <br />
-              هم‌زمان انتخاب می‌کنند.
+              ظرافت، کیفیت و راحتی.
             </p>
 
             <div className="hero-actions">
@@ -68,19 +65,28 @@ export function Hero() {
               alt="مجموعه جدید EVA MODE"
               fill
               priority
-              sizes="(max-width: 719px) 100vw, 55vw"
+              sizes="(max-width: 719px) 100vw, 58vw"
               className="hero-image"
             />
+
+            <div className="hero-image-overlay" />
 
             <div className="hero-image-label">
               <span>NEW COLLECTION</span>
               <strong>EVA MODE</strong>
             </div>
 
-            <Link href="/shop" className="hero-image-link">
-              خرید مجموعه
-              <span>←</span>
+            <Link
+              href="/shop"
+              className="hero-image-link"
+            >
+              <span>خرید مجموعه</span>
+              <span className="hero-image-arrow">←</span>
             </Link>
+
+            <div className="hero-image-number">
+              01 / 01
+            </div>
           </div>
         </div>
       </Container>

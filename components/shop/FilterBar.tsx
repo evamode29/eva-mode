@@ -18,39 +18,58 @@ export function FilterBar({
       <div className="container">
         <div className="shop-toolbar-inner">
 
-          {/* جستجو */}
+          {/* Search */}
           <div className="shop-search">
-            <span
-              className="shop-search-icon"
-              aria-hidden="true"
-            >
-              ⌕
-            </span>
+            <label className="shop-search-field">
+              <div className="shop-search-input-container">
 
-            <input
-              type="search"
-              value={search}
-              onChange={(event) =>
-                onSearchChange(event.target.value)
-              }
-              placeholder="جستجو در محصولات..."
-              aria-label="جستجو در محصولات"
-              autoComplete="off"
-            />
+                <span
+                  className="shop-search-icon"
+                  aria-hidden="true"
+                >
+                  ⌕
+                </span>
 
-            {search && (
-              <button
-                type="button"
-                className="shop-search-clear"
-                onClick={() => onSearchChange("")}
-                aria-label="پاک کردن جستجو"
-              >
-                ×
-              </button>
+                <input
+                  type="text"
+                  name="search-input"
+                  value={search}
+                  onChange={(event) =>
+                    onSearchChange(event.target.value)
+                  }
+                  autoComplete="off"
+                  aria-label="جستجو در EVA MODE"
+                  placeholder=""
+                />
+
+                {search && (
+                  <button
+                    type="button"
+                    className="shop-search-clear"
+                    onClick={() => onSearchChange("")}
+                    aria-label="پاک کردن جستجو"
+                  >
+                    ×
+                  </button>
+                )}
+
+              </div>
+            </label>
+
+            {!search && (
+              <div className="shop-search-placeholder">
+                <span>
+                  جستجو در
+                </span>
+
+                <strong>
+                  EVA MODE
+                </strong>
+              </div>
             )}
           </div>
 
-          {/* ابزارهای فروشگاه */}
+          {/* Toolbar */}
           <div className="shop-toolbar-right">
 
             <div className="shop-result-label">
@@ -58,7 +77,9 @@ export function FilterBar({
             </div>
 
             <label className="shop-sort">
-              <span>مرتب‌سازی</span>
+              <span>
+                مرتب‌سازی
+              </span>
 
               <select
                 value={sort}
