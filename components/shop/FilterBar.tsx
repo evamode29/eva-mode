@@ -17,8 +17,15 @@ export function FilterBar({
     <section className="shop-toolbar">
       <div className="container">
         <div className="shop-toolbar-inner">
+
+          {/* جستجو */}
           <div className="shop-search">
-            <span className="shop-search-icon">⌕</span>
+            <span
+              className="shop-search-icon"
+              aria-hidden="true"
+            >
+              ⌕
+            </span>
 
             <input
               type="search"
@@ -28,10 +35,24 @@ export function FilterBar({
               }
               placeholder="جستجو در محصولات..."
               aria-label="جستجو در محصولات"
+              autoComplete="off"
             />
+
+            {search && (
+              <button
+                type="button"
+                className="shop-search-clear"
+                onClick={() => onSearchChange("")}
+                aria-label="پاک کردن جستجو"
+              >
+                ×
+              </button>
+            )}
           </div>
 
+          {/* ابزارهای فروشگاه */}
           <div className="shop-toolbar-right">
+
             <div className="shop-result-label">
               محصولات EVA MODE
             </div>
@@ -46,15 +67,24 @@ export function FilterBar({
                 }
                 aria-label="مرتب‌سازی محصولات"
               >
-                <option value="new">جدیدترین</option>
-                <option value="price-asc">
+                <option value="newest">
+                  جدیدترین
+                </option>
+
+                <option value="price-low">
                   ارزان‌ترین
                 </option>
-                <option value="price-desc">
+
+                <option value="price-high">
                   گران‌ترین
+                </option>
+
+                <option value="name">
+                  الفبایی
                 </option>
               </select>
             </label>
+
           </div>
         </div>
       </div>
