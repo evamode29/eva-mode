@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useCart } from "@/components/cart/CartContext";
+import { MiniCart } from "@/components/cart/MiniCart";
 
 function CartIcon() {
   return (
@@ -36,6 +37,7 @@ function UserIcon() {
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const { totalItems } = useCart();
 
   return (
@@ -67,17 +69,23 @@ export function Header() {
             <span>حساب</span>
           </Link>
 
-          <Link href="/cart" className="header-action header-cart-action" aria-label="سبد خرید">
+          <button
+            type="button"
+            className="header-action header-cart-action"
+            aria-label={`سبد خرید، ${totalItems} کالا`}
+            aria-expanded={cartOpen}
+            onClick={() => setCartOpen(true)}
+          >
             <span className="header-action-icon header-cart-icon">
               <CartIcon />
               {totalItems > 0 && (
-                <span className="header-cart-badge" aria-label={`${totalItems} کالا در سبد`}>
+                <span className="header-cart-badge" aria-hidden="true">
                   {totalItems > 99 ? "۹۹+" : totalItems.toLocaleString("fa-IR")}
                 </span>
               )}
             </span>
             <span>سبد</span>
-          </Link>
+          </button>
 
           <button
             type="button"
@@ -103,6 +111,8 @@ export function Header() {
           </div>
         </div>
       )}
+
+      <MiniCart open={cartOpen} onClose={() => setCartOpen(false)} />
     </header>
   );
 }
