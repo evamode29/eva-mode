@@ -21,3 +21,64 @@
 
 @media (max-width:1020px){.site-header-inner{grid-template-columns:auto 1fr auto;gap:16px}.desktop-nav{gap:12px}.product-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.product-detail{grid-template-columns:minmax(0,1fr) minmax(300px,.9fr);gap:24px}}
 @media (max-width:719px){.site-header-inner{min-height:68px;grid-template-columns:auto 1fr auto}.header-search{order:3;grid-column:1/-1;padding-bottom:10px}.header-search a{min-height:42px}.desktop-nav{display:none}.header-actions{gap:10px}.header-action>span:last-child{display:none}.mobile-menu-button{display:block}.site-header-inner{padding-bottom:10px}.mobile-nav-inner{padding:8px 18px}.shop-header{padding:30px 0 24px}.shop-header-content{align-items:start;flex-direction:column}.shop-back-link{display:none}.shop-category-filter{display:none}.shop-mobile-filter-trigger{display:block;border-bottom:1px solid var(--eva-border)}.shop-mobile-filter-button{width:100%;display:flex;align-items:center;gap:10px;min-height:52px;border:0;background:none;font:inherit;font-size:12px;cursor:pointer}.shop-mobile-filter-count{padding:4px 8px;border-radius:999px;background:var(--eva-surface-soft);font-size:10px}.shop-mobile-filter-arrow{margin-inline-start:auto}.shop-advanced-filter{display:none}.shop-advanced-filter.is-open{display:block}.shop-advanced-filter-inner{display:flex;flex-direction:column;align-items:stretch;gap:16px;padding:18px 0}.shop-mobile-category{display:block}.shop-mobile-category>span,.shop-price-filter>span{display:block;margin-bottom:8px;color:var(--eva-text-muted);font-size:11px}.shop-mobile-category>div{display:flex;flex-wrap:wrap;gap:7px}.shop-mobile-category button{padding:8px 11px;border:1px solid var(--eva-border);border-radius:999px;background:var(--eva-surface);font:inherit;font-size:11px}.shop-mobile-category button.is-active{background:var(--eva-text);color:#fff}.shop-price-filter{display:block}.shop-price-filter select{width:100%}.shop-clear-filters{margin-inline-start:0;text-align:right}.shop-products{padding:28px 0 50px}.shop-products-heading{margin-bottom:18px}.shop-products-heading div{gap:10px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 12px}.product-card-body{padding-top:11px}.product-name{font-size:13px}.product-short-description{font-size:10px}.current-price strong{font-size:13px}.favorite-button{width:34px;height:34px}.product-page{padding:20px 0 50px}.product-detail{grid-template-columns:1fr;gap:22px}.product-info{position:static;padding:20px;border-radius:20px}.product-info h1{font-size:24px}.gallery-thumbs{grid-template-columns:repeat(5,minmax(0,1fr))}.size-guide-modal{padding:24px 18px}.size-guide-modal h3{font-size:21px}}
+
+/* =========================================================
+   EVA MODE — BUTTON POLISH
+========================================================= */
+.eva-button{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:48px;
+  padding:0 22px;
+  border:1px solid transparent;
+  border-radius:12px;
+  font:inherit;
+  font-size:13px;
+  font-weight:600;
+  line-height:1;
+  text-decoration:none;
+  cursor:pointer;
+  overflow:hidden;
+  isolation:isolate;
+  transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease,border-color .2s ease,color .2s ease,opacity .2s ease;
+}
+.eva-button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.16) 48%,transparent 70%);
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+}
+.eva-button:hover::after{transform:translateX(120%)}
+.eva-button:hover{transform:translateY(-2px)}
+.eva-button:active{transform:translateY(0) scale(.98)}
+.eva-button:focus-visible{outline:2px solid var(--eva-accent-dark);outline-offset:3px}
+.eva-button:disabled,.eva-button[aria-disabled="true"]{opacity:.48;cursor:not-allowed;transform:none;box-shadow:none}
+.eva-button--primary{background:var(--eva-text);color:var(--eva-surface);border-color:var(--eva-text);box-shadow:0 8px 20px rgba(36,33,31,.12)}
+.eva-button--primary:hover{background:#302c29;box-shadow:0 12px 28px rgba(36,33,31,.18)}
+.eva-button--secondary{background:var(--eva-surface);color:var(--eva-text);border-color:var(--eva-border-dark);box-shadow:0 4px 12px rgba(36,33,31,.05)}
+.eva-button--secondary:hover{border-color:var(--eva-text);background:var(--eva-bg);box-shadow:0 8px 20px rgba(36,33,31,.09)}
+.eva-button--ghost{background:transparent;color:var(--eva-text);border-color:transparent;box-shadow:none}
+.eva-button--ghost:hover{background:var(--eva-surface-soft);border-color:var(--eva-border)}
+.hero-actions .eva-button{min-width:150px;min-height:50px;border-radius:13px}
+.hero-actions .eva-button span{transition:transform .2s ease}.hero-actions .eva-button:hover span{transform:translateX(-4px)}
+.add-to-cart-button{border-radius:14px!important;box-shadow:0 10px 24px rgba(36,33,31,.12)!important}.add-to-cart-button:hover{box-shadow:0 14px 30px rgba(36,33,31,.18)!important}
+.shop-category-button,.size-option,.shop-mobile-category button,.favorite-button,.size-guide-close,.shop-mobile-filter-button{transition:transform .18s ease,background-color .18s ease,border-color .18s ease,color .18s ease,box-shadow .18s ease}
+.shop-category-button:active,.size-option:active,.shop-mobile-category button:active,.favorite-button:active,.size-guide-close:active{transform:scale(.96)}
+.favorite-button:hover{border-color:var(--eva-border-dark);box-shadow:0 8px 18px rgba(36,33,31,.10);transform:translateY(-2px)}
+.product-view-link{transition:gap .2s ease,color .2s ease}.product-view-link:hover{gap:11px;color:var(--eva-text)}
+.header-action{transition:color .2s ease,transform .2s ease}.header-action:hover{color:var(--eva-accent-dark);transform:translateY(-1px)}
+.header-action:focus-visible,.mobile-menu-button:focus-visible,.shop-category-button:focus-visible,.size-option:focus-visible,.favorite-button:focus-visible,.size-guide-close:focus-visible,.shop-mobile-filter-button:focus-visible{outline:2px solid var(--eva-accent-dark);outline-offset:3px}
+.shop-clear-filters{transition:opacity .2s ease}.shop-clear-filters:hover{opacity:.7}
+
+@media (max-width:719px){
+  .eva-button{width:100%;min-height:50px;border-radius:12px}
+  .hero-actions{display:grid;grid-template-columns:1fr;gap:10px}
+  .hero-actions .eva-button{width:100%;min-width:0}
+  .add-to-cart-button{min-height:54px}
+}
