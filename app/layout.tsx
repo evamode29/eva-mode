@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./shabnam.css";
+import "./eva-commerce.css";
 import { CartProvider } from "@/components/cart/CartContext";
 
 export const metadata: Metadata = {
@@ -8,8 +9,7 @@ export const metadata: Metadata = {
     default: "EVA MODE",
     template: "%s | EVA MODE",
   },
-  description:
-    "فروشگاه تخصصی لباس زیر زنانه",
+  description: "فروشگاه تخصصی لباس زیر زنانه",
 };
 
 export default function RootLayout({
@@ -20,9 +20,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body>
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <CartProvider>{children}</CartProvider>
       </body>
     </html>
   );
