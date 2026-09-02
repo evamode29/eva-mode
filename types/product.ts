@@ -5,6 +5,7 @@ export type Product = {
   shortDescription: string;
   description: string;
   categoryId: string;
+  categorySlug?: string;
   brand: string;
   basePrice: number;
   compareAtPrice?: number;
@@ -34,8 +35,6 @@ export type ProductImage = {
   alt: string;
   sortOrder: number;
   isPrimary: boolean;
-
-  // تصویر متعلق به کدام رنگ است
   colorId?: string | null;
 };
 
