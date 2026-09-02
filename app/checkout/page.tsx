@@ -28,6 +28,12 @@ type OrderResponse = {
   order?: { id: string; orderNumber: string; totalAmount: number; status: string; paymentStatus: string };
 };
 
+type PaymentResponse = {
+  success: boolean;
+  error?: string;
+  paymentUrl?: string;
+};
+
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
   const [formData, setFormData] = useState<FormData>({ fullName: "", mobile: "", province: "", city: "", address: "", postalCode: "" });
@@ -84,13 +90,23 @@ export default function CheckoutPage() {
 
       const data = (await response.json()) as OrderResponse;
       if (!response.ok) throw new Error(data.error || "ثبت سفارش انجام نشد.");
-      if (!data.success || !data.order?.orderNumber) throw new Error("پاسخ نامعتبر از سرور دریافت شد.");
+      if (!data.success || !data.order?.orderNumber || !data.order.id) throw new Error("پاسخ نامعتبر از سرور دریافت شد.");
+
+      const paymentResponse = await fetch("/api/payments/zarinpal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: data.order.id }),
+      });
+
+      const payment = (await paymentResponse.json()) as PaymentResponse;
+      if (!paymentResponse.ok || !payment.success || !payment.paymentUrl) {
+        throw new Error(payment.error || "اتصال به درگاه پرداخت انجام نشد.");
+      }
 
       clearCart();
-      setOrderNumber(data.order.orderNumber);
+      window.location.assign(payment.paymentUrl);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "خطایی هنگام ثبت سفارش رخ داد.");
-    } finally {
       setLoading(false);
     }
   }
@@ -142,9 +158,9 @@ export default function CheckoutPage() {
                   <label>شهر<input name="city" value={formData.city} onChange={handleChange} placeholder="شهر" autoComplete="address-level2" required /></label>
                   <label>آدرس<input name="address" value={formData.address} onChange={handleChange} placeholder="آدرس کامل" autoComplete="street-address" required /></label>
                   <label>کد پستی<input name="postalCode" value={formData.postalCode} onChange={handleChange} placeholder="کد پستی ۱۰ رقمی" inputMode="numeric" autoComplete="postal-code" maxLength={10} required /></label>
-                  <p className="form-note">اطلاعات شما برای تکمیل سفارش و ارسال محصول استفاده خواهد شد.</p>
+                  <p className="form-note">پس از ثبت سفارش، برای پرداخت امن به درگاه زرین‌پال منتقل می‌شوید.</p>
                   {error && <p className="form-note" role="alert">{error}</p>}
-                  <Button type="submit" disabled={loading}>{loading ? "در حال ثبت سفارش..." : "ثبت سفارش"}</Button>
+                  <Button type="submit" disabled={loading}>{loading ? "در حال انتقال به درگاه..." : "ثبت سفارش و پرداخت"}</Button>
                 </form>
 
                 <aside className="summary-card">
