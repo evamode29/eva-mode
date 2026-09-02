@@ -32,6 +32,7 @@ export function ShopProducts({
   const [category, setCategory] = useState("all");
   const [price, setPrice] = useState("all");
   const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -109,7 +110,7 @@ export function ShopProducts({
 
   return (
     <>
-      {/* دسته‌بندی */}
+      {/* دسته‌بندی دسکتاپ */}
       <section className="shop-category-filter">
         <div className="container">
           <div className="shop-category-filter-inner">
@@ -145,11 +146,70 @@ export function ShopProducts({
         onSortChange={setSort}
       />
 
-      {/* فیلترهای تکمیلی */}
-      <section className="shop-advanced-filter">
+      {/* دکمه فیلتر موبایل */}
+      <div className="shop-mobile-filter-trigger">
+        <div className="container">
+          <button
+            type="button"
+            className="shop-mobile-filter-button"
+            onClick={() =>
+              setMobileFiltersOpen((open) => !open)
+            }
+            aria-expanded={mobileFiltersOpen}
+          >
+            <span className="shop-mobile-filter-icon">
+              ☷
+            </span>
+
+            <span>فیلترها</span>
+
+            {hasFilters && (
+              <span className="shop-mobile-filter-count">
+                فعال
+              </span>
+            )}
+
+            <span className="shop-mobile-filter-arrow">
+              {mobileFiltersOpen ? "↑" : "↓"}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* فیلترهای پیشرفته */}
+      <section
+        className={
+          mobileFiltersOpen
+            ? "shop-advanced-filter is-open"
+            : "shop-advanced-filter"
+        }
+      >
         <div className="container">
           <div className="shop-advanced-filter-inner">
 
+            {/* دسته‌بندی موبایل */}
+            <div className="shop-mobile-category">
+              <span>دسته‌بندی</span>
+
+              <div>
+                {categories.map((item) => (
+                  <button
+                    key={item.value}
+                    type="button"
+                    className={
+                      category === item.value
+                        ? "is-active"
+                        : ""
+                    }
+                    onClick={() => setCategory(item.value)}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* قیمت */}
             <label className="shop-price-filter">
               <span>محدوده قیمت</span>
 
@@ -171,6 +231,7 @@ export function ShopProducts({
               </select>
             </label>
 
+            {/* موجودی */}
             <label className="shop-available-filter">
               <input
                 type="checkbox"
@@ -189,6 +250,7 @@ export function ShopProducts({
               </span>
             </label>
 
+            {/* پاک کردن */}
             {hasFilters && (
               <button
                 type="button"

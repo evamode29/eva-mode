@@ -6288,3 +6288,257 @@ img {
     transition: none;
   }
 }
+/* =========================================================
+   EVA MODE — MOBILE FILTER PANEL
+========================================================= */
+
+.shop-mobile-filter-trigger {
+  display: none;
+}
+
+.shop-mobile-category {
+  display: none;
+}
+
+.shop-advanced-filter {
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 720px) {
+  .shop-mobile-filter-trigger {
+    display: block;
+
+    padding: 10px 0;
+
+    background: var(--eva-bg);
+    border-bottom: 1px solid var(--eva-border);
+  }
+
+  .shop-mobile-filter-button {
+    width: 100%;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 0 14px;
+
+    border: 1px solid var(--eva-border);
+    border-radius: 12px;
+
+    background: var(--eva-surface);
+    color: var(--eva-text);
+
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .shop-mobile-filter-button:hover {
+    border-color: var(--eva-accent);
+  }
+
+  .shop-mobile-filter-icon {
+    font-size: 17px;
+    color: var(--eva-accent);
+  }
+
+  .shop-mobile-filter-count {
+    padding: 4px 8px;
+
+    border-radius: 999px;
+
+    background: var(--eva-surface-soft);
+    color: var(--eva-accent);
+
+    font-size: 8px;
+  }
+
+  .shop-mobile-filter-arrow {
+    margin-right: auto;
+
+    color: var(--eva-text-muted);
+    font-size: 14px;
+  }
+
+  .shop-advanced-filter {
+    display: none;
+
+    padding: 16px 0;
+
+    background: var(--eva-surface-soft);
+    border-bottom: 1px solid var(--eva-border);
+  }
+
+  .shop-advanced-filter.is-open {
+    display: block;
+  }
+
+  .shop-advanced-filter-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  /* دسته‌بندی داخل پنل */
+
+  .shop-mobile-category {
+    display: block;
+  }
+
+  .shop-mobile-category > span,
+  .shop-price-filter > span {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--eva-text-muted);
+
+    font-size: 9px;
+    font-weight: 700;
+  }
+
+  .shop-mobile-category > div {
+    display: flex;
+    gap: 7px;
+
+    overflow-x: auto;
+
+    padding-bottom: 3px;
+
+    scrollbar-width: none;
+  }
+
+  .shop-mobile-category > div::-webkit-scrollbar {
+    display: none;
+  }
+
+  .shop-mobile-category button {
+    flex: 0 0 auto;
+
+    min-height: 34px;
+
+    padding: 0 13px;
+
+    border: 1px solid var(--eva-border);
+    border-radius: 999px;
+
+    background: var(--eva-surface);
+    color: var(--eva-text-muted);
+
+    font-family: inherit;
+    font-size: 9px;
+
+    cursor: pointer;
+
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .shop-mobile-category button.is-active {
+    border-color: var(--eva-text);
+    background: var(--eva-text);
+    color: #fff;
+  }
+
+  /* قیمت */
+
+  .shop-price-filter {
+    display: block;
+  }
+
+  .shop-price-filter select {
+    width: 100%;
+    height: 40px;
+
+    padding: 0 12px;
+
+    border: 1px solid var(--eva-border);
+    border-radius: 10px;
+
+    background: var(--eva-surface);
+    color: var(--eva-text);
+
+    font-family: inherit;
+    font-size: 10px;
+
+    outline: none;
+  }
+
+  /* موجودی */
+
+  .shop-available-filter {
+    min-height: 40px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 11px;
+
+    border: 1px solid var(--eva-border);
+    border-radius: 10px;
+
+    background: var(--eva-surface);
+
+    font-size: 9px;
+  }
+
+  /* پاک کردن */
+
+  .shop-advanced-filter .shop-clear-filters {
+    align-self: flex-start;
+
+    margin: 0;
+
+    padding: 5px 0;
+
+    color: var(--eva-text-muted);
+  }
+
+  .shop-products {
+    padding-top: 25px;
+  }
+}
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+  .shop-mobile-filter-trigger {
+    padding: 8px 0;
+  }
+
+  .shop-mobile-filter-button {
+    min-height: 40px;
+    font-size: 9px;
+  }
+
+  .shop-advanced-filter {
+    padding: 14px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-mobile-filter-button,
+  .shop-mobile-category button,
+  .shop-advanced-filter {
+    transition: none;
+  }
+}
