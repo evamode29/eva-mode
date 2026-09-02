@@ -26,18 +26,7 @@ export async function updateSession(request: NextRequest) {
 
   await supabase.auth.getClaims();
 
-  const pathname = request.nextUrl.pathname;
-  const isPublicAuthRoute =
-    pathname === "/login" || pathname.startsWith("/auth/");
-
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user && !isPublicAuthRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
-  }
+  supabaseResponse.headers.set("Cache-Control", "private, no-store");
 
   return supabaseResponse;
 }
