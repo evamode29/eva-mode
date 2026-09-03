@@ -32,7 +32,12 @@ export function Header() {
   return (
     <header className="site-header">
       <div className="container site-header-inner">
-        <Link href="/" className="brand" aria-label="EVA MODE">EVA MODE</Link>
+        <Link href="/" className="brand" aria-label="EVA MODE">
+          <span style={{ color: "var(--eva-accent-dark)" }}>
+            <span style={{ fontSize: "1.35em", lineHeight: 0.8, display: "inline-block", verticalAlign: "-0.08em" }}>E</span>VA
+          </span>{" "}
+          <span style={{ color: "var(--eva-text)" }}>MODE</span>
+        </Link>
 
         <div className="header-search">
           <Link href="/shop" aria-label="جستجوی محصولات">
