@@ -4,37 +4,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fbf7f8">
+  <meta name="description" content="EVA MODE | فروشگاه تخصصی لباس زیر زنانه با انتخابی ظریف و مطمئن">
   <title>{% block title %}EVA MODE | فروشگاه تخصصی لباس زیر زنانه{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
 </head>
 <body>
-  <div class="topbar"><div class="container topbar-inner"><span>ارسال سریع به سراسر ایران</span><span>خرید امن و پشتیبانی EVA MODE</span></div></div>
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <span>ارسال سریع به سراسر ایران</span>
+      <span>خرید امن و پشتیبانی EVA MODE</span>
+    </div>
+  </div>
+
   <header class="header">
     <div class="container header-main">
-      <a class="brand" href="/">E<span>VA</span> MODE</a>
-      <form class="site-search" method="get" action="/shop/">
-        <span class="search-icon">⌕</span>
-        <input name="q" value="{{ request.GET.q|default:'' }}" placeholder="جستجو در محصولات، دسته‌بندی‌ها..." aria-label="جستجو">
+      <a class="brand" href="/" aria-label="صفحه اصلی EVA MODE">E<span>VA</span> MODE</a>
+
+      <form class="site-search" method="get" action="/shop/" role="search">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input name="q" value="{{ request.GET.q|default:'' }}" placeholder="جستجو در محصولات، دسته‌بندی‌ها..." aria-label="جستجو در محصولات">
         <button type="submit">جستجو</button>
       </form>
+
       <div class="header-actions">
-        <a href="/account/" class="header-action"><span>♙</span><small>{% if user.is_authenticated %}حساب من{% else %}ورود / ثبت‌نام{% endif %}</small></a>
-        <a href="/cart/" class="header-action"><span>♡</span><small>علاقه‌مندی</small></a>
-        <a href="/cart/" class="header-action cart-action"><span>🛍</span><small>سبد خرید</small></a>
+        <a href="/account/" class="header-action">
+          <span aria-hidden="true">♙</span>
+          <small>{% if user.is_authenticated %}حساب من{% else %}ورود / ثبت‌نام{% endif %}</small>
+        </a>
+        <a href="/account/" class="header-action">
+          <span aria-hidden="true">♡</span>
+          <small>علاقه‌مندی</small>
+        </a>
+        <a href="/cart/" class="header-action cart-action">
+          <span class="cart-icon" aria-hidden="true">🛍</span>
+          <small>سبد خرید{% if cart_count %} <b class="cart-count">{{ cart_count }}</b>{% endif %}</small>
+        </a>
       </div>
     </div>
+
     <div class="nav-row">
       <div class="container nav-inner">
         <a class="all-categories" href="/shop/">دسته‌بندی محصولات</a>
-        <nav class="main-nav">
-          <a href="/">خانه</a><a href="/shop/">فروشگاه</a>
-          {% for c in categories %}<a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}
-          <a href="/shop/">جدیدترین‌ها</a><a class="sale-link" href="/shop/">پیشنهاد ویژه</a>
+        <nav class="main-nav" aria-label="منوی اصلی">
+          <a href="/">خانه</a>
+          <a href="/shop/">فروشگاه</a>
+          {% for c in eva_categories %}
+            <a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>
+          {% endfor %}
+          <a href="/shop/">جدیدترین‌ها</a>
+          <a class="sale-link" href="/shop/">پیشنهاد ویژه</a>
         </nav>
       </div>
     </div>
   </header>
+
   <main>{% block content %}{% endblock %}</main>
-  <footer class="footer"><div class="container footer-grid"><div><strong>EVA MODE</strong><p>فروشگاه تخصصی لباس زیر زنانه</p></div><div><b>خدمات مشتریان</b><a href="/account/">حساب کاربری</a><a href="/cart/">سبد خرید</a><a href="/shop/">فروشگاه</a></div><div><b>راهنمای خرید</b><span>ارسال و تحویل</span><span>پشتیبانی</span><span>خرید امن</span></div></div><div class="container footer-bottom">© EVA MODE — تمامی حقوق محفوظ است.</div></footer>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>EVA MODE</strong>
+        <p>فروشگاه تخصصی لباس زیر زنانه</p>
+        <span>انتخابی ظریف، تجربه‌ای مطمئن.</span>
+      </div>
+      <div>
+        <b>خدمات مشتریان</b>
+        <a href="/account/">حساب کاربری</a>
+        <a href="/cart/">سبد خرید</a>
+        <a href="/shop/">فروشگاه</a>
+      </div>
+      <div>
+        <b>راهنمای خرید</b>
+        <span>ارسال و تحویل</span>
+        <span>پشتیبانی</span>
+        <span>خرید امن</span>
+      </div>
+    </div>
+    <div class="container footer-bottom">© EVA MODE — تمامی حقوق محفوظ است.</div>
+  </footer>
 </body>
 </html>
