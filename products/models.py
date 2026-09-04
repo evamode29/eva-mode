@@ -36,3 +36,27 @@ class Product(models.Model):
 
     def get_absolute_url(self):
         return reverse("products:detail", kwargs={"slug": self.slug})
+
+    @property
+    def primary_color(self):
+        return self.colors.filter(is_active=True).first()
+
+
+class ProductColor(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="colors", verbose_name="محصول")
+    name = models.CharField("نام رنگ", max_length=50)
+    hex_code = models.CharField("کد رنگ", max_length=7, blank=True, default="")
+    image = models.ImageField("تصویر رنگ", upload_to="products/colors/", blank=True, null=True)
+    is_active = models.BooleanField("فعال", default=True)
+    sort_order = models.PositiveIntegerField("ترتیب", default=0)
+
+    class Meta:
+        verbose_name = "رنگ محصول"
+        verbose_name_plural = "رنگ‌های محصول"
+        ordering = ["sort_order", "id"]
+        constraints = [
+            models.UniqueConstraint(fields=["product", "name"], name="unique_product_color_name"),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name}"
