@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ورود | EVA MODE</title>
+  <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-card">
+      <a class="brand auth-brand" href="/">E<span>VA</span> MODE</a>
+      <small>حساب کاربری</small>
+      <h1>ورود به EVA MODE</h1>
+      <p>شماره موبایل خود را وارد کنید تا کد ورود برای شما ارسال شود.</p>
+      {% if error %}<div class="auth-error">{{ error }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <label for="mobile">شماره موبایل</label>
+        <input id="mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel" placeholder="۰۹۱۲۳۴۵۶۷۸۹" required>
+        <button type="submit">دریافت کد ورود</button>
+      </form>
+      <a class="auth-back" href="/">بازگشت به فروشگاه</a>
+    </section>
+  </main>
+</body>
+</html>
