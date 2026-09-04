@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -65,3 +66,8 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# SMS.ir
+SMSIR_API_KEY = os.getenv("SMSIR_API_KEY", "").strip()
+SMSIR_TEMPLATE_ID = os.getenv("SMSIR_TEMPLATE_ID", "").strip()
+SMSIR_OTP_PARAMETER_NAME = os.getenv("SMSIR_OTP_PARAMETER_NAME", "CODE").strip() or "CODE"
