@@ -12,9 +12,12 @@ def home(request):
 def shop(request):
     products = Product.objects.filter(is_active=True).select_related("category").prefetch_related("colors")
     category = request.GET.get("category")
+    query = (request.GET.get("q") or "").strip()
     if category:
         products = products.filter(category__slug=category)
-    return render(request, "products/shop.html", {"products": products, "categories": Category.objects.all()})
+    if query:
+        products = products.filter(name__icontains=query)
+    return render(request, "products/shop.html", {"products": products, "categories": Category.objects.all(), "search_query": query})
 
 
 def detail(request, slug):
@@ -23,4 +26,4 @@ def detail(request, slug):
         slug=slug,
         is_active=True,
     )
-    return render(request, "products/detail.html", {"product": product})
+    return render(request, "products/detail.html", {"product": product, "categories": Category.objects.all()})
