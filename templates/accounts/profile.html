@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>حساب من | EVA MODE</title>
+  <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+</head>
+<body>
+  <header class="header"><div class="container header-inner"><a class="brand" href="/">E<span>VA</span> MODE</a><a class="search" href="/shop/">⌕ <span>جستجو در محصولات، دسته‌بندی‌ها...</span></a><nav><a href="/shop/">فروشگاه</a></nav><div class="actions"><a href="/shop/">🛍 سبد</a></div></div></header>
+  <main class="container account-page">
+    <div class="section-head"><div><small>ACCOUNT / 01</small><h1>حساب من</h1></div></div>
+    <section class="account-card">
+      <span>شماره موبایل</span>
+      <strong>{{ profile.mobile }}</strong>
+      {% if profile.full_name %}<span>نام و نام خانوادگی</span><strong>{{ profile.full_name }}</strong>{% endif %}
+      <div class="account-actions"><a href="/shop/">بازگشت به فروشگاه</a><a href="{% url 'accounts:logout' %}">خروج از حساب</a></div>
+    </section>
+  </main>
+</body>
+</html>
