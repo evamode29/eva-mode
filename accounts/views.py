@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 
 from .models import CustomerProfile
+from .sms import send_otp_sms
 
 OTP_TTL = 120
 OTP_LENGTH = 6
@@ -34,13 +35,21 @@ def login_view(request):
             return render(request, "accounts/login.html", {"error": "شماره موبایل معتبر نیست."})
 
         otp = f"{random.randint(0, 999999):06d}"
+        sent, sms_message = send_otp_sms(mobile, otp)
+        if not sent:
+            print(f"\n[EVA MODE SMS ERROR] {mobile} -> {sms_message}\n")
+            return render(
+                request,
+                "accounts/login.html",
+                {"error": "ارسال کد تأیید انجام نشد. تنظیمات پیامک را بررسی کنید."},
+            )
+
         request.session["login_mobile"] = mobile
         request.session["login_otp"] = otp
         request.session["login_otp_created"] = int(time.time())
         request.session["login_otp_attempts"] = 0
+        request.session.modified = True
 
-        # Development mode: show the OTP in the server terminal.
-        print(f"\n[EVA MODE OTP] {mobile} -> {otp}\n")
         return redirect("accounts:verify")
 
     return render(request, "accounts/login.html")
