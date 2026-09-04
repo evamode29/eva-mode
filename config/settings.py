@@ -68,6 +68,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # SMS.ir
+# API key must be supplied through the environment and must never be committed.
 SMSIR_API_KEY = os.getenv("SMSIR_API_KEY", "").strip()
-SMSIR_TEMPLATE_ID = os.getenv("SMSIR_TEMPLATE_ID", "").strip()
+SMSIR_TEMPLATE_ID = os.getenv("SMSIR_TEMPLATE_ID", "923472").strip()
 SMSIR_OTP_PARAMETER_NAME = os.getenv("SMSIR_OTP_PARAMETER_NAME", "CODE").strip() or "CODE"
