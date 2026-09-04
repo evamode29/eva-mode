@@ -1,0 +1,28 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>تأیید شماره | EVA MODE</title>
+  <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-card">
+      <a class="brand auth-brand" href="/">E<span>VA</span> MODE</a>
+      <small>تأیید شماره موبایل</small>
+      <h1>کد ورود را وارد کنید</h1>
+      <p>کد ۶ رقمی برای <strong>{{ mobile }}</strong> ارسال شده است.</p>
+      {% if error %}<div class="auth-error">{{ error }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <label for="code">کد تأیید</label>
+        <input id="code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="۱۲۳۴۵۶" required autofocus>
+        <button type="submit">ورود به حساب</button>
+      </form>
+      <a class="auth-back" href="{% url 'accounts:login' %}">تغییر شماره موبایل</a>
+    </section>
+  </main>
+</body>
+</html>
