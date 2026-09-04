@@ -2,22 +2,43 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import redirect, render
 
-from products.models import Product
+from products.models import Product, ProductColor
 
 from .models import Order, OrderItem
 
 
+def _parse_key(key):
+    parts = str(key).split(":", 1)
+    if len(parts) == 2 and parts[0].isdigit() and parts[1].isdigit():
+        return int(parts[0]), int(parts[1])
+    if str(key).isdigit():
+        return int(key), None
+    return None, None
+
+
 def _cart_items(request):
     cart = request.session.get("cart", {})
-    ids = [int(pk) for pk in cart.keys() if str(pk).isdigit()]
-    products = Product.objects.filter(id__in=ids, is_active=True)
     items = []
     total = 0
-    for product in products:
-        quantity = max(1, min(20, int(cart.get(str(product.id), 1))))
+    for key, raw_quantity in cart.items():
+        product_id, color_id = _parse_key(key)
+        if not product_id:
+            continue
+        product = Product.objects.filter(id=product_id, is_active=True).first()
+        if not product:
+            continue
+        color = None
+        if color_id:
+            color = ProductColor.objects.filter(id=color_id, product=product, is_active=True).first()
+            if not color:
+                continue
+        try:
+            quantity = max(1, min(20, int(raw_quantity)))
+        except (TypeError, ValueError):
+            quantity = 1
         subtotal = product.price * quantity
         total += subtotal
-        items.append({"product": product, "quantity": quantity, "subtotal": subtotal})
+        items.append({"product": product, "color": color, "quantity": quantity, "subtotal": subtotal, "key": key})
     return items, total
 
 
@@ -51,6 +72,8 @@ def checkout(request):
                 OrderItem.objects.create(
                     order=order,
                     product=item["product"],
+                    color=item["color"],
+                    color_name=item["color"].name if item["color"] else "",
                     product_name=item["product"].name,
                     unit_price=item["product"].price,
                     quantity=item["quantity"],
