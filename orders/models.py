@@ -43,6 +43,8 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items", verbose_name="سفارش")
     product = models.ForeignKey("products.Product", on_delete=models.PROTECT, verbose_name="محصول")
+    color = models.ForeignKey("products.ProductColor", on_delete=models.SET_NULL, null=True, blank=True, verbose_name="رنگ")
+    color_name = models.CharField("رنگ انتخابی", max_length=80, blank=True)
     product_name = models.CharField("نام محصول", max_length=200)
     unit_price = models.PositiveBigIntegerField("قیمت واحد (تومان)")
     quantity = models.PositiveIntegerField("تعداد", default=1)
@@ -56,4 +58,5 @@ class OrderItem(models.Model):
         return self.unit_price * self.quantity
 
     def __str__(self):
-        return f"{self.product_name} × {self.quantity}"
+        color = f" - {self.color_name}" if self.color_name else ""
+        return f"{self.product_name}{color} × {self.quantity}"
