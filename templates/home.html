@@ -1,0 +1,24 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EVA MODE | فروشگاه تخصصی لباس زیر زنانه</title>
+  <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+</head>
+<body>
+<header class="header"><div class="container header-inner">
+  <a class="brand" href="/">E<span>VA</span> MODE</a>
+  <a class="search" href="/shop/">⌕ <span>جستجو در محصولات، دسته‌بندی‌ها...</span></a>
+  <nav><a href="/shop/">فروشگاه</a>{% for c in categories %}<a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}</nav>
+  <div class="actions"><a href="/account/">♙ حساب</a><a href="/shop/">🛍 سبد</a></div>
+</div></header>
+<main>
+<section class="hero"><div class="hero-content"><small>01 / EVA MODE</small><h1>زیبایی، ظرافت<br>و انتخابی که برای توست.</h1><p>مجموعه‌ای منتخب از لباس زیر زنانه با طراحی مینیمال و کیفیت بالا.</p><a class="btn" href="/shop/">مشاهده فروشگاه</a></div></section>
+<section class="trust"><div>ارسال سریع و مطمئن</div><div>ضمانت کیفیت محصولات</div><div>پشتیبانی قبل و بعد از خرید</div></section>
+<section class="section"><div class="section-head"><div><small>02 / COLLECTION</small><h2>دسته‌بندی‌ها</h2></div><a href="/shop/">مشاهده همه</a></div><div class="categories">{% for c in categories %}<a class="category" href="/shop/?category={{ c.slug }}"><span>{{ c.name }}</span><b>→</b></a>{% empty %}<p>هنوز دسته‌بندی‌ای ثبت نشده است.</p>{% endfor %}</div></section>
+<section class="section"><div class="section-head"><div><small>03 / SELECTED</small><h2>محصولات منتخب EVA MODE</h2></div><a href="/shop/">همه محصولات</a></div><div class="grid">{% for p in products %}<a class="card" href="/shop/product/{{ p.slug }}/"><div class="image">{% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}<span>EVA MODE</span>{% endif %}</div><h3>{{ p.name }}</h3><div class="price">{{ p.price|floatformat:0 }} تومان</div></a>{% empty %}<p>محصولی برای نمایش ثبت نشده است.</p>{% endfor %}</div></section>
+</main>
+<footer class="footer"><div class="container"><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div></footer>
+</body></html>
