@@ -12,10 +12,8 @@
     .checkout-top h1{margin:5px 0 0;font-size:clamp(30px,4vw,46px);letter-spacing:-1px}
     .checkout-top p{margin:6px 0 0;color:var(--muted);font-size:13px}
     .checkout-steps{display:flex;align-items:center;gap:9px;color:#aaa0a5;font-size:11px;white-space:nowrap}
-    .checkout-step{display:flex;align-items:center;gap:7px}
-    .checkout-step span{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border);background:#fff}
-    .checkout-step.active{color:var(--accent-dark);font-weight:700}.checkout-step.active span{background:var(--text);color:#fff;border-color:var(--text)}
-    .checkout-line{width:35px;height:1px;background:var(--border)}
+    .checkout-step{display:flex;align-items:center;gap:7px}.checkout-step span{width:27px;height:27px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--border);background:#fff}
+    .checkout-step.active{color:var(--accent-dark);font-weight:700}.checkout-step.active span{background:var(--text);color:#fff;border-color:var(--text)}.checkout-line{width:35px;height:1px;background:var(--border)}
     .checkout-layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:24px;align-items:start}
     .checkout-card,.checkout-summary{background:rgba(255,253,253,.96);border:1px solid var(--border);border-radius:24px;box-shadow:0 10px 34px rgba(83,64,72,.055)}
     .checkout-card{padding:30px}.checkout-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.checkout-card-head h2,.checkout-summary h2{margin:0;font-size:21px}.checkout-card-head small,.checkout-summary>small{color:var(--accent-dark);font-size:10px;font-weight:700;letter-spacing:1.7px}
@@ -32,24 +30,14 @@
     <div class="container header-main">
       <a class="brand" href="/">E<span>VA</span> MODE</a>
       <form class="site-search" action="/shop/" method="get"><span class="search-icon">⌕</span><input name="q" placeholder="جست‌وجوی محصول، رنگ یا دسته‌بندی" aria-label="جست‌وجو"><button type="submit">جست‌وجو</button></form>
-      <div class="header-actions">
-        <a class="header-action" href="/account/profile/"><span class="header-icon">♙</span><small>حساب من</small></a>
-        <a class="header-action" href="/cart/"><span class="header-icon">♡</span><small>سبد خرید</small></a>
-      </div>
+      <div class="header-actions"><a class="header-action" href="/account/profile/"><span class="header-icon">♙</span><small>حساب من</small></a><a class="header-action" href="/cart/"><span class="header-icon">♡</span><small>سبد خرید</small></a></div>
     </div>
   </header>
 
   <main class="container checkout-page">
     <div class="checkout-top">
-      <div>
-        <div class="section-head" style="margin:0"><div><small>CHECKOUT / 02</small><h1>تکمیل سفارش</h1></div></div>
-        <p>اطلاعات ارسال را وارد کنید تا سفارش شما با خیال راحت ثبت شود.</p>
-      </div>
-      <div class="checkout-steps" aria-label="مراحل خرید">
-        <div class="checkout-step"><span>✓</span>سبد خرید</div><i class="checkout-line"></i>
-        <div class="checkout-step active"><span>۲</span>اطلاعات ارسال</div><i class="checkout-line"></i>
-        <div class="checkout-step"><span>۳</span>پرداخت</div>
-      </div>
+      <div><div class="section-head" style="margin:0"><div><small>CHECKOUT / 02</small><h1>تکمیل سفارش</h1></div></div><p>اطلاعات ارسال را وارد کنید تا سفارش شما با خیال راحت ثبت شود.</p></div>
+      <div class="checkout-steps" aria-label="مراحل خرید"><div class="checkout-step"><span>✓</span>سبد خرید</div><i class="checkout-line"></i><div class="checkout-step active"><span>۲</span>اطلاعات ارسال</div><i class="checkout-line"></i><div class="checkout-step"><span>۳</span>پرداخت</div></div>
     </div>
 
     {% if error %}<div class="auth-error">{{ error }}</div>{% endif %}
@@ -59,11 +47,12 @@
         <div class="checkout-card-head"><div><small>SHIPPING DETAILS</small><h2>اطلاعات گیرنده</h2></div><span style="font-size:10px;color:var(--muted)">تمام فیلدهای ضروری را کامل کنید</span></div>
         <form class="checkout-form" method="post">
           {% csrf_token %}
-          <div class="checkout-field"><label for="full_name">نام و نام خانوادگی</label><input id="full_name" name="full_name" value="{{ profile.full_name|default:'' }}" autocomplete="name" required></div>
-          <div class="checkout-field"><label for="mobile">شماره موبایل</label><input id="mobile" name="mobile" value="{{ profile.mobile|default:'' }}" inputmode="tel" autocomplete="tel" placeholder="مثلاً ۰۹۱۲۱۲۳۴۵۶۷" required></div>
-          <div class="checkout-field"><label for="city">شهر</label><input id="city" name="city" value="تهران" autocomplete="address-level2" required></div>
-          <div class="checkout-field"><label for="postal_code">کد پستی <span class="field-hint">۱۰ رقم</span></label><input id="postal_code" name="postal_code" inputmode="numeric" maxlength="10" autocomplete="postal-code"></div>
-          <div class="checkout-field full"><label for="address">آدرس کامل</label><textarea id="address" name="address" rows="5" autocomplete="street-address" placeholder="استان، شهر، خیابان، کوچه، پلاک، واحد..." required></textarea></div>
+          <input type="hidden" name="checkout_token" value="{{ checkout_token }}">
+          <div class="checkout-field"><label for="full_name">نام و نام خانوادگی</label><input id="full_name" name="full_name" value="{{ form_data.full_name|default:profile.full_name|default:'' }}" autocomplete="name" required></div>
+          <div class="checkout-field"><label for="mobile">شماره موبایل</label><input id="mobile" name="mobile" value="{{ form_data.mobile|default:profile.mobile|default:'' }}" inputmode="tel" autocomplete="tel" placeholder="مثلاً ۰۹۱۲۱۲۳۴۵۶۷" required></div>
+          <div class="checkout-field"><label for="city">شهر</label><input id="city" name="city" value="{{ form_data.city|default:'تهران' }}" autocomplete="address-level2" required></div>
+          <div class="checkout-field"><label for="postal_code">کد پستی <span class="field-hint">۱۰ رقم</span></label><input id="postal_code" name="postal_code" value="{{ form_data.postal_code|default:'' }}" inputmode="numeric" maxlength="10" autocomplete="postal-code"></div>
+          <div class="checkout-field full"><label for="address">آدرس کامل</label><textarea id="address" name="address" rows="5" autocomplete="street-address" placeholder="استان، شهر، خیابان، کوچه، پلاک، واحد..." required>{{ form_data.address|default:'' }}</textarea></div>
           <div class="shipping-box"><div class="shipping-title">روش ارسال</div><label class="shipping-option"><input type="radio" name="shipping_method" value="standard" checked><span><strong>ارسال عادی</strong><small>ارسال به آدرس شما پس از آماده‌سازی سفارش</small></span></label></div>
           <div class="checkout-submit"><div class="checkout-note"><strong>🔒 خرید امن و مطمئن</strong><br>اطلاعات شما فقط برای پردازش و ارسال سفارش استفاده می‌شود.</div><button class="btn" type="submit">ادامه و ثبت سفارش ←</button></div>
         </form>
@@ -71,20 +60,8 @@
 
       <aside class="checkout-summary">
         <div class="summary-head"><div><small>ORDER SUMMARY</small><h2>خلاصه سفارش</h2></div><span class="summary-count">{{ items|length }} کالا</span></div>
-        <div class="summary-items">
-          {% for item in items %}
-          <div class="summary-item">
-            <div class="summary-thumb">{% if item.product.primary_image %}<img src="{{ item.product.primary_image.url }}" alt="{{ item.product.name }}">{% else %}EVA MODE{% endif %}</div>
-            <div class="summary-item-info"><strong>{{ item.product.name }}</strong><span>تعداد: {{ item.quantity }}</span></div>
-            <div class="summary-item-price">{{ item.subtotal|floatformat:0 }} تومان</div>
-          </div>
-          {% endfor %}
-        </div>
-        <div class="summary-totals">
-          <div class="summary-row"><span>جمع کالاها</span><strong>{{ total|floatformat:0 }} تومان</strong></div>
-          <div class="summary-row"><span>هزینه ارسال</span><span>محاسبه پس از ثبت</span></div>
-          <div class="summary-row total"><span>مبلغ سفارش</span><strong>{{ total|floatformat:0 }} تومان</strong></div>
-        </div>
+        <div class="summary-items">{% for item in items %}<div class="summary-item"><div class="summary-thumb">{% if item.product.primary_image %}<img src="{{ item.product.primary_image.url }}" alt="{{ item.product.name }}">{% else %}EVA MODE{% endif %}</div><div class="summary-item-info"><strong>{{ item.product.name }}</strong><span>تعداد: {{ item.quantity }}</span>{% if item.color %}<span>رنگ: {{ item.color.name }}</span>{% endif %}</div><div class="summary-item-price">{{ item.subtotal|floatformat:0 }} تومان</div></div>{% endfor %}</div>
+        <div class="summary-totals"><div class="summary-row"><span>جمع کالاها</span><strong>{{ total|floatformat:0 }} تومان</strong></div><div class="summary-row"><span>هزینه ارسال</span><span>محاسبه پس از ثبت</span></div><div class="summary-row total"><span>مبلغ سفارش</span><strong>{{ total|floatformat:0 }} تومان</strong></div></div>
         <div class="secure-note">پرداخت آنلاین در مرحله بعد به درگاه متصل می‌شود. قبل از پرداخت، مبلغ نهایی و اطلاعات سفارش نمایش داده خواهد شد.</div>
       </aside>
     </div>
