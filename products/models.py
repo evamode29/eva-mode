@@ -121,6 +121,32 @@ class ProductColor(models.Model):
         return f"{self.product.name} - {self.name}"
 
     @property
+    def display_hex_code(self):
+        """Return the saved HEX, or a sensible swatch color from the Persian color name."""
+        if self.hex_code:
+            return self.hex_code
+        name = (self.name or "").strip().lower()
+        named_colors = {
+            "قرمز": "#D32F2F",
+            "سرخ": "#D32F2F",
+            "آبی": "#1976D2",
+            "سبز": "#388E3C",
+            "زرد": "#FBC02D",
+            "نارنجی": "#F57C00",
+            "بنفش": "#7B1FA2",
+            "صورتی": "#D9A7AE",
+            "سفید": "#F7F5F0",
+            "مشکی": "#171717",
+            "کرم": "#D9C5A8",
+            "قهوه‌ای": "#795548",
+            "طوسی": "#9E9E9E",
+            "خاکستری": "#9E9E9E",
+            "زرشکی": "#8B1E3F",
+            "سرمه‌ای": "#172554",
+        }
+        return named_colors.get(name, "#EEEEEE")
+
+    @property
     def gallery_images(self):
         images = list(self.images.filter(is_active=True).order_by("sort_order", "id"))
         urls = [item.image.url for item in images if item.image]
