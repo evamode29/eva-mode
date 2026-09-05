@@ -8,6 +8,13 @@
   <meta name="description" content="EVA MODE | فروشگاه تخصصی لباس زیر زنانه با انتخابی ظریف و مطمئن">
   <title>{% block title %}EVA MODE | فروشگاه تخصصی لباس زیر زنانه{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+  <style>
+    .product-card-tools{position:absolute;inset:0;pointer-events:none;z-index:3}
+    .discount-badge{position:absolute;top:12px;right:12px;background:#8f6874;color:#fff;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:600;box-shadow:0 5px 15px rgba(83,64,72,.13)}
+    .wishlist-badge{position:absolute;top:11px;left:11px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);border:1px solid #eadfe3;font-size:22px;line-height:1;color:#6f5960;box-shadow:0 5px 16px rgba(83,64,72,.08)}
+    .card-meta{display:flex;justify-content:space-between;gap:10px;margin:12px 17px 0;font-size:10px;color:#81777b}.card-meta span:last-child{color:#b9a17f;letter-spacing:1px}
+    @media(max-width:600px){.discount-badge{top:8px;right:8px;font-size:9px;padding:3px 7px}.wishlist-badge{top:8px;left:8px;width:29px;height:29px;font-size:19px}.card-meta{margin-inline:11px;font-size:9px}}
+  </style>
 </head>
 <body>
   <div class="topbar"><div class="container topbar-inner"><span>ارسال سریع به سراسر ایران</span><span>خرید امن و پشتیبانی EVA MODE</span></div></div>
