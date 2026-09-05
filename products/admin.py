@@ -7,9 +7,15 @@ from .models import Category, Product, ProductColor, ProductColorImage, ProductI
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 1
-    fields = ("image", "preview", "sort_order", "is_active")
-    readonly_fields = ("preview",)
+    fields = ("image", "color", "color_code", "preview", "sort_order", "is_active")
+    readonly_fields = ("preview", "color_code")
     ordering = ("sort_order", "id")
+
+    @admin.display(description="کد رنگ")
+    def color_code(self, obj):
+        if not obj.color_id or not obj.color.hex_code:
+            return "—"
+        return format_html('<span style="display:inline-flex;align-items:center;gap:6px"><i style="width:18px;height:18px;border-radius:50%;background:{};border:1px solid #ccc;display:inline-block"></i>{}</span>', obj.color.hex_code, obj.color.hex_code)
 
     @admin.display(description="پیش‌نمایش")
     def preview(self, obj):
@@ -67,9 +73,9 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ("product", "preview", "sort_order", "is_active")
+    list_display = ("product", "color", "preview", "sort_order", "is_active")
     list_filter = ("is_active", "product__category")
-    search_fields = ("product__name",)
+    search_fields = ("product__name", "color__name")
     ordering = ("product", "sort_order", "id")
     readonly_fields = ("preview",)
 
@@ -82,7 +88,7 @@ class ProductImageAdmin(admin.ModelAdmin):
 
 @admin.register(ProductColor)
 class ProductColorAdmin(admin.ModelAdmin):
-    list_display = ("name", "product", "is_active", "sort_order", "image_count")
+    list_display = ("name", "product", "hex_code", "is_active", "sort_order", "image_count")
     list_filter = ("is_active", "product")
     search_fields = ("name", "product__name")
     inlines = [ProductColorImageInline]
