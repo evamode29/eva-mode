@@ -18,7 +18,11 @@
     .wishlist-badge{position:absolute;top:11px;left:11px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);border:1px solid #eadfe3;font-size:22px;line-height:1;color:#6f5960;box-shadow:0 5px 16px rgba(83,64,72,.08)}
     .card-meta{display:flex;justify-content:space-between;gap:10px;margin:12px 17px 0;font-size:10px;color:#81777b}.card-meta span:last-child{color:#b9a17f;letter-spacing:1px}
     .wishlist-btn{transition:.2s}.wishlist-btn.is-favorite{color:#a34f61}.wishlist-btn.is-favorite:hover{color:#7f3548}
-    @media(max-width:600px){.discount-badge{top:8px;right:8px;font-size:9px;padding:3px 7px}.wishlist-badge{top:8px;left:8px;width:29px;height:29px;font-size:19px}.card-meta{margin-inline:11px;font-size:9px}}
+    .social-links{display:flex;align-items:center;gap:12px;margin-top:18px}
+    .social-link{width:36px;height:36px;display:inline-grid;place-items:center;color:#6f6466;text-decoration:none;transition:color .2s ease,transform .2s ease}
+    .social-link:hover{color:#a34f61;transform:translateY(-2px)}
+    .social-link svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    @media(max-width:600px){.discount-badge{top:8px;right:8px;font-size:9px;padding:3px 7px}.wishlist-badge{top:8px;left:8px;width:29px;height:29px;font-size:19px}.card-meta{margin-inline:11px;font-size:9px}.social-links{gap:8px}}
   </style>
 </head>
 <body>
@@ -47,7 +51,17 @@
     <div class="nav-row"><div class="container nav-inner"><a class="all-categories" href="/shop/">دسته‌بندی محصولات</a><nav class="main-nav" aria-label="منوی اصلی"><a href="/">خانه</a><a href="/shop/">فروشگاه</a>{% for c in eva_categories %}<a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}<a href="/shop/">جدیدترین‌ها</a><a class="sale-link" href="/shop/">پیشنهاد ویژه</a></nav></div></div>
   </header>
   <main>{% block content %}{% endblock %}</main>
-  <footer class="footer"><div class="container footer-grid"><div><strong>EVA MODE</strong><p>فروشگاه تخصصی لباس زیر زنانه</p><span>انتخابی ظریف، تجربه‌ای مطمئن.</span></div><div><b>خدمات مشتریان</b><a href="/account/">حساب کاربری</a><a href="/account/favorites/">علاقه‌مندی‌ها</a><a href="/cart/">سبد خرید</a><a href="/shop/">فروشگاه</a></div><div><b>راهنمای خرید</b><span>ارسال و تحویل</span><span>پشتیبانی</span><span>خرید امن</span></div></div><div class="container footer-bottom">© EVA MODE — تمامی حقوق محفوظ است.</div></footer>
+  <footer class="footer"><div class="container footer-grid"><div><strong>EVA MODE</strong><p>فروشگاه تخصصی لباس زیر زنانه</p><span>انتخابی ظریف، تجربه‌ای مطمئن.</span><div class="social-links" aria-label="شبکه‌های اجتماعی EVA MODE">
+    <a class="social-link" href="https://www.rubika.ir/@evamode_ir" target="_blank" rel="noopener noreferrer" aria-label="روبیکا">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 4.5h7.1a3.2 3.2 0 0 1 3.2 3.2v6.7a3.2 3.2 0 0 1-3.2 3.2H9.7l-3.1 2v-2.1a3.2 3.2 0 0 1-2.1-3V7.7a3.2 3.2 0 0 1 2.7-3.2Z"></path><path d="M8 9.3h8M8 12h5.5"></path></svg>
+    </a>
+    <a class="social-link" href="https://www.rubika.ir/@evamode_ir" target="_blank" rel="noopener noreferrer" aria-label="تلگرام">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 4.7-3.2 14.7c-.2 1- .8 1.2-1.6.7l-4.5-3.3-2.2 2.1c-.2.2-.4.4-.8.4l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2L5.9 13.4 1.5 12c-1-.3-1-1 .2-1.4L19 4.1c.8-.3 1.6.2 1.5.6Z"></path></svg>
+    </a>
+    <a class="social-link" href="https://www.rubika.ir/@evamode_ir" target="_blank" rel="noopener noreferrer" aria-label="اینستاگرام">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4.5" width="15" height="15" rx="4"></rect><circle cx="12" cy="12" r="3.4"></circle><circle cx="17.2" cy="6.9" r=".8" fill="currentColor" stroke="none"></circle></svg>
+    </a>
+  </div></div><div><b>خدمات مشتریان</b><a href="/account/">حساب کاربری</a><a href="/account/favorites/">علاقه‌مندی‌ها</a><a href="/cart/">سبد خرید</a><a href="/shop/">فروشگاه</a></div><div><b>راهنمای خرید</b><span>ارسال و تحویل</span><span>پشتیبانی</span><span>خرید امن</span></div></div><div class="container footer-bottom">© EVA MODE — تمامی حقوق محفوظ است.</div></footer>
   <script src="{% static 'js/wishlist.js' %}"></script>
   <script>
     (() => { const fa='۰۱۲۳۴۵۶۷۸۹'; const convert=value=>value.replace(/[0-9]/g,d=>fa[d]); const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT); const nodes=[]; while(walker.nextNode())nodes.push(walker.currentNode); nodes.forEach(node=>{const parent=node.parentElement;if(parent&&!parent.closest('input,textarea,select,script,style'))node.nodeValue=convert(node.nodeValue);}); })();
