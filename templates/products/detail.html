@@ -16,6 +16,7 @@
         {% else %}
           <span>EVA MODE</span>
         {% endif %}
+        <span id="color-image-overlay" aria-hidden="true"></span>
       </div>
 
       <div class="product-thumbnails" id="product-thumbnails" aria-label="تصاویر محصول">
@@ -60,6 +61,7 @@
                     type="button"
                     data-color-id="{{ color.id }}"
                     data-color-name="{{ color.name }}"
+                    data-color-hex="{{ color.hex_code }}"
                     data-gallery="{% for color_image in color.gallery_images %}{{ color_image }}{% if not forloop.last %}|{% endif %}{% endfor %}"
                     aria-label="{{ color.name }}"
                     title="{{ color.name }}"
@@ -86,8 +88,10 @@
 
 <style>
 .product-gallery{min-width:0}
-.detail-image{overflow:hidden}
+.detail-image{overflow:hidden;position:relative}
 .detail-image img{transition:opacity .18s ease;width:100%;height:100%;object-fit:cover;display:block}
+#color-image-overlay{position:absolute;inset:0;pointer-events:none;background:var(--selected-color,#000);opacity:0;mix-blend-mode:multiply;transition:opacity .25s ease}
+#color-image-overlay.is-fallback{opacity:.18}
 .product-thumbnails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
 .product-thumbnail{padding:0;border:1px solid var(--border);background:#fff;border-radius:13px;overflow:hidden;cursor:pointer;aspect-ratio:4/5;transition:.2s}
 .product-thumbnail:hover,.product-thumbnail.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}
@@ -113,6 +117,7 @@
 <script>
 const mainImage = document.getElementById('product-main-image');
 const thumbnailsBox = document.getElementById('product-thumbnails');
+const colorOverlay = document.getElementById('color-image-overlay');
 const colorId = document.getElementById('selected-color-id');
 const colorName = document.getElementById('selected-color-name');
 const colorButtons = Array.from(document.querySelectorAll('.color-option'));
@@ -129,9 +134,19 @@ function changeMainImage(src, alt) {
   }, 120);
 }
 
-function renderGallery(images, colorLabel) {
+function applyColorVisual(hex, hasOwnGallery) {
+  if (!colorOverlay) return;
+  if (hex) {
+    colorOverlay.style.setProperty('--selected-color', hex);
+  }
+  // When a real color gallery exists, do not tint the photography.
+  colorOverlay.classList.toggle('is-fallback', Boolean(hex) && !hasOwnGallery);
+}
+
+function renderGallery(images, colorLabel, colorHex) {
   if (!thumbnailsBox) return;
-  const gallery = images.length ? images : baseGallery;
+  const hasOwnGallery = images.length > 0;
+  const gallery = hasOwnGallery ? images : baseGallery;
   thumbnailsBox.innerHTML = '';
 
   gallery.forEach((src, index) => {
@@ -152,25 +167,26 @@ function renderGallery(images, colorLabel) {
   if (gallery[0]) {
     changeMainImage(gallery[0], colorLabel ? `${document.title.split(' | ')[0]} - ${colorLabel}` : document.title.split(' | ')[0]);
   }
+  applyColorVisual(colorHex, hasOwnGallery);
 }
 
-colorButtons.forEach((button, index) => {
+colorButtons.forEach((button) => {
   button.addEventListener('click', () => {
     colorButtons.forEach((item) => item.classList.remove('selected'));
     button.classList.add('selected');
 
     const id = button.dataset.colorId || '';
     const name = button.dataset.colorName || '';
+    const hex = button.dataset.colorHex || '';
     const images = (button.dataset.gallery || '').split('|').filter(Boolean);
 
     if (colorId) colorId.value = id;
     if (colorName) colorName.textContent = name || 'انتخاب کنید';
 
-    renderGallery(images, name);
+    renderGallery(images, name, hex);
   });
 });
 
-// مانند فروشگاه‌های حرفه‌ای: اولین رنگ دارای تصویر به‌صورت پیش‌فرض فعال می‌شود.
 const firstColor = colorButtons.find((button) => (button.dataset.gallery || '').length > 0) || colorButtons[0];
 if (firstColor) firstColor.click();
 
