@@ -46,16 +46,13 @@ class Product(models.Model):
 
     @property
     def gallery_images(self):
-        """Uploaded product images first; keep legacy media-folder fallback."""
         uploaded = [item.image.url for item in self.images.filter(is_active=True).order_by("sort_order", "id") if item.image]
         if uploaded:
             return uploaded
-
         media_root = Path(settings.MEDIA_ROOT)
         products_root = media_root / "products"
         if not products_root.exists():
             return []
-
         extensions = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
         category_slug = self.category.slug if self.category_id else ""
         category_folders = [category_slug]
@@ -63,52 +60,25 @@ class Product(models.Model):
             category_folders.append("panties")
         elif category_slug == "panties":
             category_folders.append("briefs")
-
         folders = [products_root / folder / self.slug for folder in category_folders]
         folders.append(products_root / self.slug)
-
         candidates = []
         for folder in folders:
             if not folder.is_dir():
                 continue
-            candidates = [
-                path for path in folder.iterdir()
-                if path.is_file() and path.suffix.lower() in extensions
-            ]
+            candidates = [p for p in folder.iterdir() if p.is_file() and p.suffix.lower() in extensions]
             if candidates:
                 break
-
         def natural_key(path):
             stem = path.stem.lower()
             return (0, int(stem)) if stem.isdigit() else (1, stem)
-
         candidates.sort(key=natural_key)
-        return [
-            f"{settings.MEDIA_URL.rstrip('/')}/{path.relative_to(media_root).as_posix()}"
-            for path in candidates
-        ]
+        return [f"{settings.MEDIA_URL.rstrip('/')}/{p.relative_to(media_root).as_posix()}" for p in candidates]
 
     @property
     def primary_image_url(self):
         gallery = self.gallery_images
-        if gallery:
-            return gallery[0]
-
-        media_root = Path(settings.MEDIA_ROOT)
-        products_root = media_root / "products"
-        if not products_root.exists():
-            return ""
-
-        extensions = (".jpg", ".jpeg", ".png", ".webp", ".avif")
-        for extension in extensions:
-            matches = products_root.rglob(f"{self.slug}{extension}")
-            try:
-                image_path = next(matches)
-            except StopIteration:
-                continue
-            relative_path = image_path.relative_to(media_root).as_posix()
-            return f"{settings.MEDIA_URL.rstrip('/')}/{relative_path}"
-        return ""
+        return gallery[0] if gallery else ""
 
     @property
     def discount_percent(self):
@@ -119,6 +89,7 @@ class Product(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images", verbose_name="محصول")
+    color = models.ForeignKey("ProductColor", on_delete=models.SET_NULL, related_name="product_images", verbose_name="رنگ تصویر", blank=True, null=True)
     image = models.ImageField("تصویر محصول", upload_to="products/gallery/")
     sort_order = models.PositiveIntegerField("ترتیب", default=0)
     is_active = models.BooleanField("فعال", default=True)
@@ -129,7 +100,7 @@ class ProductImage(models.Model):
         ordering = ["sort_order", "id"]
 
     def __str__(self):
-        return f"{self.product.name} - {self.id}"
+        return f"{self.product.name} - {self.color.name if self.color_id else 'بدون رنگ'} - {self.id}"
 
 
 class ProductColor(models.Model):
@@ -144,9 +115,7 @@ class ProductColor(models.Model):
         verbose_name = "رنگ محصول"
         verbose_name_plural = "رنگ‌های محصول"
         ordering = ["sort_order", "id"]
-        constraints = [
-            models.UniqueConstraint(fields=["product", "name"], name="unique_product_color_name"),
-        ]
+        constraints = [models.UniqueConstraint(fields=["product", "name"], name="unique_product_color_name")]
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
@@ -159,7 +128,7 @@ class ProductColor(models.Model):
             return urls
         if self.image:
             return [self.image.url]
-        return []
+        return [item.image.url for item in self.product_images.filter(is_active=True).order_by("sort_order", "id") if item.image]
 
     @property
     def primary_image_url(self):
