@@ -33,7 +33,7 @@ def shop(request):
 
 def detail(request, slug):
     product = get_object_or_404(
-        Product.objects.select_related("category").prefetch_related("colors"),
+        Product.objects.select_related("category").prefetch_related("colors__images"),
         slug=slug,
         is_active=True,
     )
