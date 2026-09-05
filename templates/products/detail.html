@@ -61,12 +61,12 @@
                     type="button"
                     data-color-id="{{ color.id }}"
                     data-color-name="{{ color.name }}"
-                    data-color-hex="{{ color.hex_code }}"
+                    data-color-hex="{{ color.display_hex_code }}"
                     data-gallery="{% for color_image in color.gallery_images %}{{ color_image }}{% if not forloop.last %}|{% endif %}{% endfor %}"
                     aria-label="{{ color.name }}"
                     title="{{ color.name }}"
                   >
-                    <span class="color-dot"{% if color.hex_code %} style="background:{{ color.hex_code }}"{% endif %}></span>
+                    <span class="color-dot" style="background-color:{{ color.display_hex_code }}"></span>
                     <span class="color-name">{{ color.name }}</span>
                   </button>
                 {% endif %}
