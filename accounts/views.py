@@ -3,9 +3,12 @@ import time
 
 from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
-from django.shortcuts import redirect, render
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import CustomerProfile
+from products.models import Product
+
+from .models import CustomerProfile, FavoriteProduct
 from .sms import send_otp_sms
 
 OTP_TTL = 120
@@ -38,18 +41,13 @@ def login_view(request):
         sent, sms_message = send_otp_sms(mobile, otp)
         if not sent:
             print(f"\n[EVA MODE SMS ERROR] {mobile} -> {sms_message}\n")
-            return render(
-                request,
-                "accounts/login.html",
-                {"error": "ارسال کد تأیید انجام نشد. تنظیمات پیامک را بررسی کنید."},
-            )
+            return render(request, "accounts/login.html", {"error": "ارسال کد تأیید انجام نشد. تنظیمات پیامک را بررسی کنید."})
 
         request.session["login_mobile"] = mobile
         request.session["login_otp"] = otp
         request.session["login_otp_created"] = int(time.time())
         request.session["login_otp_attempts"] = 0
         request.session.modified = True
-
         return redirect("accounts:verify")
 
     return render(request, "accounts/login.html")
@@ -61,8 +59,7 @@ def verify_view(request):
     if not mobile or not created:
         return redirect("accounts:login")
 
-    expired = int(time.time()) - int(created) > OTP_TTL
-    if expired:
+    if int(time.time()) - int(created) > OTP_TTL:
         request.session.flush()
         return render(request, "accounts/login.html", {"error": "کد منقضی شده است. دوباره درخواست کد کنید."})
 
@@ -101,6 +98,25 @@ def profile_view(request):
         defaults={"mobile": request.user.username.removeprefix("mobile_")},
     )
     return render(request, "accounts/profile.html", {"profile": profile})
+
+
+def favorites_toggle(request, slug):
+    if not request.user.is_authenticated:
+        return JsonResponse({"ok": False, "login_required": True, "login_url": "/account/"}, status=401)
+    if request.method != "POST":
+        return JsonResponse({"ok": False}, status=405)
+    product = get_object_or_404(Product, slug=slug, is_active=True)
+    favorite, created = FavoriteProduct.objects.get_or_create(user=request.user, product=product)
+    if not created:
+        favorite.delete()
+    return JsonResponse({"ok": True, "favorite": created, "count": FavoriteProduct.objects.filter(user=request.user).count()})
+
+
+def favorites_view(request):
+    if not request.user.is_authenticated:
+        return redirect("accounts:login")
+    favorites = FavoriteProduct.objects.filter(user=request.user).select_related("product", "product__category")
+    return render(request, "accounts/favorites.html", {"favorites": favorites})
 
 
 def logout_view(request):
