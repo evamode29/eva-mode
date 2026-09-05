@@ -4,19 +4,26 @@ from .models import Category, Product
 
 
 def _prepare_products(products):
-    """Prepare product cards without overriding model properties."""
     return products
 
 
 def home(request):
-    products = Product.objects.filter(is_active=True).select_related("category").prefetch_related("colors")[:8]
+    products = (
+        Product.objects.filter(is_active=True)
+        .select_related("category")
+        .prefetch_related("colors", "images")[:8]
+    )
     products = _prepare_products(products)
     categories = Category.objects.all()
     return render(request, "home.html", {"products": products, "categories": categories})
 
 
 def shop(request):
-    products = Product.objects.filter(is_active=True).select_related("category").prefetch_related("colors")
+    products = (
+        Product.objects.filter(is_active=True)
+        .select_related("category")
+        .prefetch_related("colors", "images")
+    )
     category = request.GET.get("category")
     query = (request.GET.get("q") or "").strip()
     if category:
@@ -33,7 +40,7 @@ def shop(request):
 
 def detail(request, slug):
     product = get_object_or_404(
-        Product.objects.select_related("category").prefetch_related("colors__images"),
+        Product.objects.select_related("category").prefetch_related("images", "colors__images"),
         slug=slug,
         is_active=True,
     )
