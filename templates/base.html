@@ -8,6 +8,7 @@
   <meta name="description" content="EVA MODE | فروشگاه تخصصی لباس زیر زنانه با انتخابی ظریف و مطمئن">
   <title>{% block title %}EVA MODE | فروشگاه تخصصی لباس زیر زنانه{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+  <link rel="stylesheet" href="{% static 'css/eva-polish.css' %}">
   <style>
     .product-card-tools{position:absolute;inset:0;pointer-events:none;z-index:3}
     .discount-badge{position:absolute;top:12px;right:12px;background:#8f6874;color:#fff;border-radius:999px;padding:4px 9px;font-size:10px;font-weight:600;box-shadow:0 5px 15px rgba(83,64,72,.13)}
@@ -32,7 +33,7 @@
           <small>{% if user.is_authenticated %}حساب من{% else %}ورود / ثبت‌نام{% endif %}</small>
         </a>
         <a href="/account/" class="header-action" aria-label="علاقه‌مندی‌ها">
-          <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.7c0 5.1-8.5 10-8.5 10s-8.5-4.9-8.5-10A4.2 4.2 0 0 1 11 6.1L12 7l1-0.9a4.2 4.2 0 0 1 7.5 2.6Z"></path></svg>
+          <svg class="header-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 8.7c0 5.1-8.5 10-8.5 10s-8.5-4.9-8.5-10A4.2 4.2 0 0 1 11 6.1L12 7l1-.9a4.2 4.2 0 0 1 7.5 2.6Z"></path></svg>
           <small>علاقه‌مندی</small>
         </a>
         <a href="/cart/" class="header-action cart-action" aria-label="سبد خرید">
