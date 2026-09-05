@@ -2,79 +2,25 @@
 {% block title %}EVA MODE | فروشگاه تخصصی لباس زیر زنانه{% endblock %}
 {% block content %}
 <div class="container">
-  <section class="hero-new" aria-label="معرفی EVA MODE">
+  <section class="hero-new hero-premium">
     <div class="hero-new-content">
       <span class="hero-kicker">EVA MODE / NEW COLLECTION</span>
-      <h1>انتخابی ظریف،<br>برای حس بهتر تو.</h1>
-      <p>مجموعه‌ای منتخب از لباس زیر زنانه با طراحی مینیمال، کیفیت بالا و تجربه‌ای مطمئن از خرید آنلاین.</p>
-      <div class="hero-actions">
-        <a class="btn" href="/shop/">مشاهده محصولات</a>
-        <a class="hero-secondary" href="/shop/?q=جدید">تازه‌های EVA MODE ←</a>
-      </div>
+      <h1>زیبایی، از<br><em>انتخاب تو</em> شروع می‌شود.</h1>
+      <p>کالکشن منتخب لباس زیر زنانه؛ ظریف، باکیفیت و طراحی‌شده برای حس خوب هر روز.</p>
+      <div class="hero-actions"><a class="btn" href="/shop/">کشف کالکشن ←</a><a class="hero-secondary" href="/shop/?q=جدید">جدیدترین‌ها</a></div>
+      <div class="hero-proof"><span><b>✓</b> خرید مطمئن</span><span><b>✦</b> انتخاب خاص</span><span><b>↗</b> ارسال سریع</span></div>
     </div>
+    <div class="hero-floating-card"><small>EDITOR'S PICK</small><strong>برای تو انتخاب شده</strong><a href="/shop/">مشاهده ←</a></div>
   </section>
 
-  <div class="quick-searches" aria-label="جستجوهای محبوب">
-    <strong>جستجوهای محبوب:</strong>
-    <a href="/shop/?q=سوتین">سوتین</a>
-    <a href="/shop/?q=شورت">شورت</a>
-    <a href="/shop/?q=ست">ست‌ها</a>
-    <a href="/shop/?q=لباس خواب">لباس خواب</a>
-    <a href="/shop/?q=جدید">جدیدترین‌ها</a>
-  </div>
+  <div class="quick-searches" aria-label="جستجوهای محبوب"><strong>محبوب‌ترین جستجوها</strong><a href="/shop/?q=سوتین">سوتین</a><a href="/shop/?q=شورت">شورت</a><a href="/shop/?q=ست">ست‌های زنانه</a><a href="/shop/?q=لباس خواب">لباس خواب</a><a href="/shop/?q=جدید">تازه‌واردها</a></div>
 
-  <section class="home-strip" aria-label="مزایای خرید">
-    <div class="home-strip-item"><span class="home-strip-icon">✦</span><div><strong>انتخاب دقیق</strong><span>محصولات منتخب و کاربردی</span></div></div>
-    <div class="home-strip-item"><span class="home-strip-icon">✓</span><div><strong>خرید مطمئن</strong><span>پرداخت و سفارش امن</span></div></div>
-    <div class="home-strip-item"><span class="home-strip-icon">↗</span><div><strong>ارسال سریع</strong><span>تحویل به سراسر ایران</span></div></div>
-    <div class="home-strip-item"><span class="home-strip-icon">♡</span><div><strong>پشتیبانی</strong><span>همراه شما قبل و بعد از خرید</span></div></div>
-  </section>
+  <section class="home-strip"><div class="home-strip-item"><span class="home-strip-icon">✦</span><div><strong>انتخاب دقیق</strong><span>محصولات منتخب EVA</span></div></div><div class="home-strip-item"><span class="home-strip-icon">✓</span><div><strong>خرید امن</strong><span>تجربه‌ای مطمئن</span></div></div><div class="home-strip-item"><span class="home-strip-icon">↗</span><div><strong>ارسال سریع</strong><span>به سراسر ایران</span></div></div><div class="home-strip-item"><span class="home-strip-icon">♡</span><div><strong>پشتیبانی</strong><span>همراه شما هستیم</span></div></div></section>
 
-  <section class="section">
-    <div class="section-head">
-      <div><small>01 / SHOP BY CATEGORY</small><h2>دسته‌بندی‌ها</h2><p class="section-note">سریع‌تر به انتخاب موردنظرت برس.</p></div>
-      <a href="/shop/">مشاهده همه ←</a>
-    </div>
-    <div class="home-category-grid">
-      {% for c in categories|slice:":5" %}
-      <a class="home-category-card" href="/shop/?category={{ c.slug }}">
-        <span class="home-category-arrow">←</span>
-        <div class="home-category-copy"><small>EVA COLLECTION</small><strong>{{ c.name }}</strong></div>
-      </a>
-      {% empty %}
-      <div class="empty">هنوز دسته‌بندی‌ای ثبت نشده است.</div>
-      {% endfor %}
-    </div>
-  </section>
+  <section class="section category-feature"><div class="section-head"><div><small>01 / DISCOVER YOUR STYLE</small><h2>انتخابت را پیدا کن</h2><p class="section-note">دسته مورد علاقه‌ات را انتخاب کن و وارد دنیای EVA MODE شو.</p></div><a href="/shop/">همه دسته‌ها ←</a></div><div class="home-category-grid">{% for c in categories|slice:":5" %}<a class="home-category-card" href="/shop/?category={{ c.slug }}"><span class="home-category-arrow">←</span><div class="home-category-copy"><small>EVA COLLECTION</small><strong>{{ c.name }}</strong><span>مشاهده محصولات</span></div></a>{% empty %}<div class="empty">هنوز دسته‌بندی‌ای ثبت نشده است.</div>{% endfor %}</div></section>
 
-  <section class="section">
-    <div class="section-head product-section-head">
-      <div><small>02 / NEW & SELECTED</small><h2>محصولات منتخب</h2><p class="section-note">چند انتخاب تازه برای شروع خرید.</p></div>
-      <a href="/shop/">همه محصولات ←</a>
-    </div>
-    <div class="grid">
-      {% for p in products %}
-      <a class="card" href="{{ p.get_absolute_url }}">
-        <div class="image">
-          {% if p.primary_color and p.primary_color.image %}<img src="{{ p.primary_color.image.url }}" alt="{{ p.name }}">
-          {% elif p.primary_image_url %}<img src="{{ p.primary_image_url }}" alt="{{ p.name }}">
-          {% elif p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}">
-          {% else %}<span>EVA MODE</span>{% endif %}
-          {% if p.discount_percent %}<span class="discount-badge">{{ p.discount_percent }}٪ تخفیف</span>{% endif %}
-          <span class="wishlist-badge" aria-label="افزودن به علاقه‌مندی">♡</span>
-        </div>
-        <div class="card-meta"><span>{{ p.category.name }}</span><span>★★★★★</span></div>
-        {% if p.old_price %}<del>{{ p.old_price|floatformat:0 }} تومان</del>{% endif %}
-        <h3>{{ p.name }}</h3>
-        <div class="price">{{ p.price|floatformat:0 }} تومان</div>
-      </a>
-      {% empty %}<div class="empty">محصولی برای نمایش ثبت نشده است.</div>{% endfor %}
-    </div>
-  </section>
+  <section class="section"><div class="section-head product-section-head"><div><small>02 / CURATED FOR YOU</small><h2>انتخاب‌های این هفته</h2><p class="section-note">محصولاتی که ارزش دیدن دارند.</p></div><a href="/shop/">مشاهده همه ←</a></div><div class="grid">{% for p in products %}<a class="card" href="{{ p.get_absolute_url }}"><div class="image">{% if p.primary_color and p.primary_color.image %}<img src="{{ p.primary_color.image.url }}" alt="{{ p.name }}">{% elif p.primary_image_url %}<img src="{{ p.primary_image_url }}" alt="{{ p.name }}">{% elif p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}<span>EVA MODE</span>{% endif %}{% if p.discount_percent %}<span class="discount-badge">{{ p.discount_percent }}٪ تخفیف</span>{% endif %}<span class="wishlist-badge">♡</span></div><div class="card-meta"><span>{{ p.category.name }}</span><span>★★★★★</span></div>{% if p.old_price %}<del>{{ p.old_price|floatformat:0 }} تومان</del>{% endif %}<h3>{{ p.name }}</h3><div class="price">{{ p.price|floatformat:0 }} تومان</div></a>{% empty %}<div class="empty">محصولی برای نمایش ثبت نشده است.</div>{% endfor %}</div></section>
 
-  <section class="home-cta">
-    <div><strong>برای انتخاب بهتر آماده‌ای؟</strong><p>همه محصولات EVA MODE را ببین و انتخابت را شروع کن.</p></div>
-    <a class="btn" href="/shop/">ورود به فروشگاه ←</a>
-  </section>
+  <section class="home-cta premium-cta"><div><small>EVA MODE</small><strong>وقتشه انتخاب خودت رو داشته باشی.</strong><p>کالکشن کامل را ببین و چیزی را پیدا کن که واقعاً دوستش داری.</p></div><a class="btn" href="/shop/">شروع خرید ←</a></section>
 </div>
 {% endblock %}
