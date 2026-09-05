@@ -1,196 +1,106 @@
 {% extends "base.html" %}
 {% block title %}{{ product.name }} | EVA MODE{% endblock %}
 {% block content %}
-<main class="container detail">
-  <a class="back" href="/shop/">→ بازگشت به فروشگاه</a>
+<main class="eva-product-page">
+  <div class="container">
+    <nav class="product-breadcrumb" aria-label="مسیر صفحه">
+      <a href="/">خانه</a><span>‹</span><a href="/shop/">فروشگاه</a>
+      {% if product.category %}<span>‹</span><a href="/shop/?category={{ product.category.slug }}">{{ product.category.name }}</a>{% endif %}
+      <span>‹</span><strong>{{ product.name }}</strong>
+    </nav>
 
-  <div class="detail-grid">
-    <div class="product-gallery">
-      <div class="detail-image" id="product-image-box">
-        {% if product.gallery_images %}
-          <img id="product-main-image" src="{{ product.gallery_images.0 }}" alt="{{ product.name }}">
-        {% elif product.primary_color and product.primary_color.primary_image_url %}
-          <img id="product-main-image" src="{{ product.primary_color.primary_image_url }}" alt="{{ product.name }} - {{ product.primary_color.name }}">
-        {% elif product.image_url %}
-          <img id="product-main-image" src="{{ product.image_url }}" alt="{{ product.name }}">
-        {% else %}
-          <span>EVA MODE</span>
-        {% endif %}
-        <span id="color-image-overlay" aria-hidden="true"></span>
-      </div>
+    <section class="product-shell">
+      <div class="product-gallery-panel">
+        <div class="gallery-stage" id="product-image-box">
+          {% if product.discount_percent %}<span class="product-discount-badge">{{ product.discount_percent }}٪ تخفیف</span>{% endif %}
+          <button class="gallery-expand" type="button" id="gallery-expand" aria-label="نمایش تصویر بزرگ">⤢</button>
+          {% if product.gallery_images %}<img id="product-main-image" src="{{ product.gallery_images.0 }}" alt="{{ product.name }}">
+          {% elif product.primary_color and product.primary_color.primary_image_url %}<img id="product-main-image" src="{{ product.primary_color.primary_image_url }}" alt="{{ product.name }} - {{ product.primary_color.name }}">
+          {% elif product.image_url %}<img id="product-main-image" src="{{ product.image_url }}" alt="{{ product.name }}">
+          {% else %}<span class="gallery-empty">EVA MODE</span>{% endif %}
+          <span id="color-image-overlay" aria-hidden="true"></span>
+        </div>
 
-      <div class="product-thumbnails" id="product-thumbnails" aria-label="تصاویر محصول">
-        {% for image_url in product.gallery_images %}
-          <button class="product-thumbnail{% if forloop.first %} selected{% endif %}" type="button" data-image="{{ image_url }}" aria-label="تصویر {{ forloop.counter }}">
-            <img src="{{ image_url }}" alt="{{ product.name }} - تصویر {{ forloop.counter }}">
-          </button>
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="detail-info">
-      <small>{{ product.category.name }}</small>
-      <h1>{{ product.name }}</h1>
-
-      {% if product.old_price %}
-        <del>{{ product.old_price|floatformat:0 }} تومان</del>
-      {% endif %}
-      <div class="detail-price">{{ product.price|floatformat:0 }} تومان</div>
-
-      {% if product.description %}
-        <p>{{ product.description }}</p>
-      {% else %}
-        <p>محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>
-      {% endif %}
-
-      <form method="post" action="{% url 'cart:add' product.id %}" id="add-to-cart-form">
-        {% csrf_token %}
-
-        {% if product.colors.all %}
-          <div class="color-picker">
-            <div class="color-picker-label">
-              <span>رنگ:</span>
-              <strong id="selected-color-name">انتخاب کنید</strong>
-            </div>
-
-            <div class="color-options" id="color-options">
-              {% for color in product.colors.all %}
-                {% if color.is_active %}
-                  <button
-                    class="color-option"
-                    type="button"
-                    data-color-id="{{ color.id }}"
-                    data-color-name="{{ color.name }}"
-                    data-color-hex="{{ color.display_hex_code }}"
-                    data-gallery="{% for color_image in color.gallery_images %}{{ color_image }}{% if not forloop.last %}|{% endif %}{% endfor %}"
-                    aria-label="{{ color.name }}"
-                    title="{{ color.name }}"
-                  >
-                    <span class="color-dot" style="background-color:{{ color.display_hex_code }}"></span>
-                    <span class="color-name">{{ color.name }}</span>
-                  </button>
-                {% endif %}
-              {% endfor %}
-            </div>
+        <div class="product-thumbnails-wrap">
+          <button class="thumb-arrow" id="thumb-prev" type="button" aria-label="تصویر قبلی">‹</button>
+          <div class="product-thumbnails" id="product-thumbnails" aria-label="تصاویر محصول">
+            {% for image_url in product.gallery_images %}
+              <button class="product-thumbnail{% if forloop.first %} selected{% endif %}" type="button" data-image="{{ image_url }}" aria-label="تصویر {{ forloop.counter }}"><img src="{{ image_url }}" alt="{{ product.name }} - تصویر {{ forloop.counter }}"></button>
+            {% endfor %}
           </div>
-          <input type="hidden" name="color_id" id="selected-color-id" value="">
-        {% endif %}
+          <button class="thumb-arrow" id="thumb-next" type="button" aria-label="تصویر بعدی">›</button>
+        </div>
+        <div class="gallery-trust-row"><span>✓ تصاویر واقعی محصول</span><span>✓ ارسال به سراسر ایران</span><span>✓ بسته‌بندی محرمانه</span></div>
+      </div>
 
-        <button class="btn" type="submit">افزودن به سبد خرید</button>
-      </form>
-    </div>
+      <aside class="product-info-panel">
+        <div class="product-eyebrow">EVA MODE · COLLECTION</div>
+        {% if product.category %}<a class="product-category" href="/shop/?category={{ product.category.slug }}">{{ product.category.name }}</a>{% endif %}
+        <h1>{{ product.name }}</h1>
+        <div class="product-meta-row"><span class="product-stock">● موجود</span><button type="button" class="wishlist-btn" aria-label="افزودن به علاقه‌مندی">♡ <span>افزودن به علاقه‌مندی</span></button></div>
+
+        <div class="price-card">
+          {% if product.old_price %}<div class="old-price">{{ product.old_price|floatformat:0 }} <small>تومان</small></div>{% endif %}
+          <div class="current-price">{{ product.price|floatformat:0 }} <small>تومان</small></div>
+          {% if product.discount_percent %}<span class="save-label">{{ product.discount_percent }}٪ تخفیف</span>{% endif %}
+        </div>
+
+        <div class="product-short-description">{% if product.description %}{{ product.description|linebreaksbr }}{% else %}انتخابی ظریف و باکیفیت برای استایل روزمره؛ با بسته‌بندی محرمانه EVA MODE.{% endif %}</div>
+
+        <form method="post" action="{% url 'cart:add' product.id %}" id="add-to-cart-form">
+          {% csrf_token %}
+          {% if product.colors.all %}
+            <section class="selector-section color-picker">
+              <div class="selector-heading"><span>رنگ</span><strong id="selected-color-name">انتخاب کنید</strong></div>
+              <div class="color-options" id="color-options">
+                {% for color in product.colors.all %}{% if color.is_active %}
+                  <button class="color-option" type="button" data-color-id="{{ color.id }}" data-color-name="{{ color.name }}" data-color-hex="{{ color.display_hex_code }}" data-gallery="{% for color_image in color.gallery_images %}{{ color_image }}{% if not forloop.last %}|{% endif %}{% endfor %}" aria-label="{{ color.name }}" title="{{ color.name }}"><span class="color-dot" style="background-color:{{ color.display_hex_code }}"></span><span class="color-name">{{ color.name }}</span></button>
+                {% endif %}{% endfor %}
+              </div>
+            </section>
+            <input type="hidden" name="color_id" id="selected-color-id" value="">
+          {% endif %}
+          <div class="purchase-box">
+            <div class="quantity-box" aria-label="تعداد"><button type="button" id="qty-minus" aria-label="کاهش تعداد">−</button><input id="qty-input" name="quantity" value="1" min="1" max="20" inputmode="numeric" aria-label="تعداد"><button type="button" id="qty-plus" aria-label="افزایش تعداد">+</button></div>
+            <button class="add-to-cart-btn" type="submit"><span>افزودن به سبد خرید</span><b>←</b></button>
+          </div>
+        </form>
+
+        <div class="product-benefits">
+          <div><span>🚚</span><p><strong>ارسال سریع</strong><small>به سراسر ایران</small></p></div>
+          <div><span>🔒</span><p><strong>خرید امن</strong><small>اطلاعات شما محرمانه است</small></p></div>
+          <div><span>♡</span><p><strong>بسته‌بندی محرمانه</strong><small>بدون درج نام محصول</small></p></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="product-details-section">
+      <div class="details-heading"><span>جزئیات محصول</span><i></i></div>
+      <div class="details-grid">
+        <article><span>درباره محصول</span><p>{% if product.description %}{{ product.description|linebreaksbr }}{% else %}برای مشاهده و انتخاب دقیق‌تر، تصاویر گالری و رنگ‌های موجود را بررسی کنید.{% endif %}</p></article>
+        <article><span>اطلاعات ارسال</span><p>سفارش شما با بسته‌بندی محرمانه آماده و به سراسر ایران ارسال می‌شود.</p></article>
+        <article><span>پشتیبانی EVA MODE</span><p>برای انتخاب رنگ یا دریافت راهنمایی درباره محصول، با پشتیبانی فروشگاه در تماس باشید.</p></article>
+      </div>
+    </section>
   </div>
 </main>
 
+<div class="gallery-lightbox" id="gallery-lightbox" aria-hidden="true"><button type="button" class="lightbox-close" id="lightbox-close" aria-label="بستن">×</button><img id="lightbox-image" src="" alt=""></div>
+
 <style>
-.product-gallery{min-width:0}
-.detail-image{overflow:hidden;position:relative}
-.detail-image img{transition:opacity .18s ease;width:100%;height:100%;object-fit:cover;display:block}
-#color-image-overlay{position:absolute;inset:0;pointer-events:none;background:var(--selected-color,#000);opacity:0;mix-blend-mode:multiply;transition:opacity .25s ease}
-#color-image-overlay.is-fallback{opacity:.18}
-.product-thumbnails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
-.product-thumbnail{padding:0;border:1px solid var(--border);background:#fff;border-radius:13px;overflow:hidden;cursor:pointer;aspect-ratio:4/5;transition:.2s}
-.product-thumbnail:hover,.product-thumbnail.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}
-.product-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
-.color-picker{margin:24px 0 20px;padding-top:4px}
-.color-picker-label{display:flex;align-items:center;gap:8px;margin-bottom:13px;font-size:14px}
-.color-picker-label strong{font-weight:700;color:var(--text)}
-.color-options{display:flex;flex-wrap:wrap;gap:10px}
-.color-option{display:inline-flex;align-items:center;gap:8px;padding:6px 10px 6px 8px;border:1px solid var(--border);background:#fff;border-radius:999px;cursor:pointer;color:var(--text);transition:.2s}
-.color-option:hover,.color-option.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}
-.color-dot{width:34px;height:34px;display:block;flex:0 0 34px;border-radius:50%;border:1px solid rgba(0,0,0,.14);background:#eee;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
-.color-name{font-size:13px;white-space:nowrap}
-@media(max-width:800px){
-  .detail-grid{grid-template-columns:1fr;gap:20px}
-  .detail-info{padding:15px 5px 0}
-  .product-thumbnails{grid-template-columns:repeat(4,1fr);gap:7px}
-  .detail-image{border-radius:20px}
-}
+.eva-product-page{background:#faf9f7;min-height:100vh;padding:12px 0 70px;color:#272421}.product-breadcrumb{display:flex;align-items:center;gap:9px;min-height:48px;font-size:12px;color:#8b847d;white-space:nowrap;overflow:auto}.product-breadcrumb a{color:inherit;text-decoration:none}.product-breadcrumb a:hover{color:var(--accent)}.product-breadcrumb strong{font-weight:700;color:#4a4540;overflow:hidden;text-overflow:ellipsis}.product-shell{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(360px,.88fr);gap:42px;align-items:start;background:#fff;border:1px solid #ece8e3;border-radius:28px;padding:28px;box-shadow:0 16px 50px rgba(39,36,33,.045)}.product-gallery-panel{min-width:0}.gallery-stage{position:relative;aspect-ratio:4/4.8;background:#f4f1ed;border-radius:22px;overflow:hidden;display:flex;align-items:center;justify-content:center}.gallery-stage img{width:100%;height:100%;display:block;object-fit:cover;transition:opacity .2s ease,transform .35s ease}.gallery-stage:hover img{transform:scale(1.012)}.gallery-stage #color-image-overlay{position:absolute;inset:0;pointer-events:none;background:var(--selected-color,#000);opacity:0;mix-blend-mode:multiply;transition:opacity .25s ease}.gallery-stage #color-image-overlay.is-fallback{opacity:.16}.gallery-empty{font-size:20px;letter-spacing:.22em;color:#9b938b}.product-discount-badge{position:absolute;z-index:4;top:18px;right:18px;background:#272421;color:#fff;border-radius:999px;padding:7px 12px;font-size:11px;font-weight:800}.gallery-expand{position:absolute;z-index:4;left:16px;top:16px;border:1px solid rgba(255,255,255,.7);background:rgba(255,255,255,.82);backdrop-filter:blur(8px);width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px;color:#38332e}.product-thumbnails-wrap{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:9px;align-items:center;margin-top:13px}.product-thumbnails{display:flex;gap:10px;overflow:hidden}.product-thumbnail{padding:0;border:1px solid #e8e2dc;background:#fff;border-radius:13px;overflow:hidden;cursor:pointer;aspect-ratio:1/1.18;transition:.2s;min-width:76px}.product-thumbnail:hover,.product-thumbnail.selected{border-color:#8e7668;box-shadow:0 0 0 3px #f3e8e2}.product-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}.thumb-arrow{width:38px;height:38px;border:1px solid #e5ded8;background:#fff;border-radius:50%;cursor:pointer;color:#5e5750;font-size:24px}.thumb-arrow:hover{border-color:#8e7668}.gallery-trust-row{display:flex;gap:18px;flex-wrap:wrap;padding:15px 4px 0;color:#837b73;font-size:11px}.product-info-panel{position:sticky;top:18px;padding:8px 4px}.product-eyebrow{font-size:10px;letter-spacing:.18em;color:#9b8b80;font-weight:800;margin-bottom:13px}.product-category{display:inline-block;color:#9a8170;text-decoration:none;font-size:12px;margin-bottom:9px}.product-info-panel h1{font-size:31px;line-height:1.45;letter-spacing:-.035em;margin:0 0 13px;font-weight:800;color:#282421}.product-meta-row{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #eee9e4;padding-bottom:17px}.product-stock{font-size:12px;color:#4d8a58;font-weight:700}.wishlist-btn{border:0;background:transparent;color:#81776f;cursor:pointer;font-family:inherit;font-size:12px}.wishlist-btn:hover{color:#8e7668}.price-card{padding:20px 0 10px;display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}.old-price{font-size:13px;color:#aaa29b;text-decoration:line-through}.old-price small,.current-price small{font-size:11px;font-weight:500}.current-price{font-size:29px;font-weight:900;letter-spacing:-.02em;color:#272421}.save-label{background:#f5e9e7;color:#9d4d52;padding:5px 9px;border-radius:7px;font-size:11px;font-weight:800}.product-short-description{font-size:14px;line-height:2;color:#716961;padding:8px 0 19px;border-bottom:1px solid #eee9e4}.selector-section{padding:21px 0 18px}.selector-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;font-size:13px}.selector-heading strong{font-size:12px;color:#81766d}.color-options{display:flex;flex-wrap:wrap;gap:9px}.color-option{display:inline-flex;align-items:center;gap:8px;padding:7px 11px 7px 8px;border:1px solid #e3ddd7;background:#fff;border-radius:999px;cursor:pointer;color:#4b4540;transition:.2s;font-family:inherit}.color-option:hover,.color-option.selected{border-color:#8e7668;box-shadow:0 0 0 3px #f4ebe6}.color-dot{width:31px;height:31px;display:block;flex:0 0 31px;border-radius:50%;border:1px solid rgba(0,0,0,.12);box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)}.color-name{font-size:12px;white-space:nowrap}.purchase-box{display:grid;grid-template-columns:112px minmax(0,1fr);gap:10px}.quantity-box{height:54px;border:1px solid #ddd6d0;border-radius:13px;display:grid;grid-template-columns:32px 1fr 32px;background:#fff}.quantity-box button{border:0;background:transparent;font-size:20px;cursor:pointer;color:#6d655e}.quantity-box input{width:100%;border:0;outline:0;text-align:center;background:transparent;font-family:inherit;font-weight:800;color:#2b2724}.add-to-cart-btn{height:54px;border:0;border-radius:13px;background:#282421;color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:20px;transition:.2s}.add-to-cart-btn:hover{background:#8d7567;transform:translateY(-1px)}.add-to-cart-btn b{font-size:18px}.product-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px}.product-benefits>div{background:#faf8f5;border:1px solid #eee9e4;border-radius:13px;padding:12px 9px;display:flex;align-items:flex-start;gap:8px}.product-benefits span{font-size:16px}.product-benefits p{margin:0;display:flex;flex-direction:column;gap:4px}.product-benefits strong{font-size:10px}.product-benefits small{font-size:9px;color:#938b84;line-height:1.5}.product-details-section{margin-top:24px;background:#fff;border:1px solid #ece8e3;border-radius:22px;padding:25px 28px}.details-heading{display:flex;align-items:center;gap:14px;font-size:17px;font-weight:800}.details-heading i{height:1px;background:#e9e3dd;flex:1}.details-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:28px;margin-top:23px}.details-grid article{padding-left:20px;border-left:1px solid #eee9e4}.details-grid article:last-child{border-left:0}.details-grid span{font-size:12px;font-weight:800;color:#5e5750}.details-grid p{font-size:12px;line-height:2;color:#827a72;margin:9px 0 0}.gallery-lightbox{position:fixed;z-index:9999;inset:0;background:rgba(22,19,17,.92);display:none;align-items:center;justify-content:center;padding:30px}.gallery-lightbox.is-open{display:flex}.gallery-lightbox img{max-width:min(900px,92vw);max-height:88vh;object-fit:contain;border-radius:12px}.lightbox-close{position:absolute;top:20px;left:25px;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;font-size:30px;cursor:pointer}@media(max-width:1050px){.product-shell{grid-template-columns:minmax(0,1fr) minmax(330px,.8fr);gap:25px;padding:20px}.product-info-panel h1{font-size:27px}.product-benefits{grid-template-columns:1fr}.details-grid{grid-template-columns:1fr 1fr}.details-grid article:nth-child(2){border-left:0}.details-grid article:last-child{grid-column:1/-1;border-top:1px solid #eee9e4;padding:18px 0 0}}@media(max-width:800px){.eva-product-page{padding-top:0}.product-breadcrumb{padding:0 4px}.product-shell{display:flex;flex-direction:column;border-radius:0;border-left:0;border-right:0;padding:12px 0 28px;gap:20px}.product-gallery-panel{width:100%}.gallery-stage{border-radius:0;aspect-ratio:1/1.16}.product-info-panel{position:static;padding:0 15px}.product-info-panel h1{font-size:24px}.product-details-section{border-radius:0;border-left:0;border-right:0;padding:23px 15px}.details-grid{grid-template-columns:1fr}.details-grid article,.details-grid article:nth-child(2),.details-grid article:last-child{border-left:0;border-top:1px solid #eee9e4;padding:17px 0 0}.details-grid article:first-child{border-top:0;padding-top:0}.gallery-trust-row{padding:13px 12px;font-size:10px;gap:10px}.product-thumbnails-wrap{padding:0 10px}.purchase-box{grid-template-columns:100px minmax(0,1fr)}.current-price{font-size:26px}}
 </style>
 
 <script>
-const mainImage = document.getElementById('product-main-image');
-const thumbnailsBox = document.getElementById('product-thumbnails');
-const colorOverlay = document.getElementById('color-image-overlay');
-const colorId = document.getElementById('selected-color-id');
-const colorName = document.getElementById('selected-color-name');
-const colorButtons = Array.from(document.querySelectorAll('.color-option'));
-
-const baseGallery = Array.from(document.querySelectorAll('.product-thumbnail')).map((button) => button.dataset.image).filter(Boolean);
-
-function changeMainImage(src, alt) {
-  if (!mainImage || !src) return;
-  mainImage.style.opacity = '0.35';
-  setTimeout(() => {
-    mainImage.src = src;
-    mainImage.alt = alt || mainImage.alt;
-    mainImage.style.opacity = '1';
-  }, 120);
-}
-
-function applyColorVisual(hex, hasOwnGallery) {
-  if (!colorOverlay) return;
-  if (hex) {
-    colorOverlay.style.setProperty('--selected-color', hex);
-  }
-  colorOverlay.classList.toggle('is-fallback', Boolean(hex) && !hasOwnGallery);
-}
-
-function renderGallery(images, colorLabel, colorHex) {
-  if (!thumbnailsBox) return;
-  const hasOwnGallery = images.length > 0;
-  const gallery = hasOwnGallery ? images : baseGallery;
-  thumbnailsBox.innerHTML = '';
-
-  gallery.forEach((src, index) => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = `product-thumbnail${index === 0 ? ' selected' : ''}`;
-    button.dataset.image = src;
-    button.setAttribute('aria-label', `تصویر ${index + 1}`);
-    button.innerHTML = `<img src="${src}" alt="${colorLabel || document.title.split(' | ')[0]} - تصویر ${index + 1}">`;
-    button.addEventListener('click', () => {
-      document.querySelectorAll('.product-thumbnail').forEach((item) => item.classList.remove('selected'));
-      button.classList.add('selected');
-      changeMainImage(src, colorLabel ? `${document.title.split(' | ')[0]} - ${colorLabel}` : document.title.split(' | ')[0]);
-    });
-    thumbnailsBox.appendChild(button);
-  });
-
-  if (gallery[0]) {
-    changeMainImage(gallery[0], colorLabel ? `${document.title.split(' | ')[0]} - ${colorLabel}` : document.title.split(' | ')[0]);
-  }
-  applyColorVisual(colorHex, hasOwnGallery);
-}
-
-colorButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    colorButtons.forEach((item) => item.classList.remove('selected'));
-    button.classList.add('selected');
-
-    const id = button.dataset.colorId || '';
-    const name = button.dataset.colorName || '';
-    const hex = button.dataset.colorHex || '';
-    const images = (button.dataset.gallery || '').split('|').filter(Boolean);
-
-    if (colorId) colorId.value = id;
-    if (colorName) colorName.textContent = name || 'انتخاب کنید';
-
-    renderGallery(images, name, hex);
-  });
-});
-
-const firstColor = colorButtons.find((button) => (button.dataset.gallery || '').length > 0) || colorButtons[0];
-if (firstColor) firstColor.click();
-
-const form = document.getElementById('add-to-cart-form');
-if (form && colorId) {
-  form.addEventListener('submit', (event) => {
-    if (colorButtons.length && !colorId.value) {
-      event.preventDefault();
-      alert('لطفاً رنگ محصول را انتخاب کنید.');
-    }
-  });
-}
+const mainImage=document.getElementById('product-main-image');const thumbnailsBox=document.getElementById('product-thumbnails');const colorOverlay=document.getElementById('color-image-overlay');const colorId=document.getElementById('selected-color-id');const colorName=document.getElementById('selected-color-name');const colorButtons=Array.from(document.querySelectorAll('.color-option'));const baseGallery=Array.from(document.querySelectorAll('.product-thumbnail')).map(b=>b.dataset.image).filter(Boolean);const productTitle=document.querySelector('.product-info-panel h1')?.textContent.trim()||document.title.split(' | ')[0];
+function changeMainImage(src,alt){if(!mainImage||!src)return;mainImage.style.opacity='.25';setTimeout(()=>{mainImage.src=src;mainImage.alt=alt||productTitle;mainImage.style.opacity='1'},120)}
+function applyColorVisual(hex,own){if(!colorOverlay)return;colorOverlay.style.setProperty('--selected-color',hex||'#000');colorOverlay.classList.toggle('is-fallback',Boolean(hex)&&!own)}
+function bindThumbnail(button,index,label){button.addEventListener('click',()=>{document.querySelectorAll('.product-thumbnail').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');changeMainImage(button.dataset.image,`${productTitle}${label?' - '+label:''} - تصویر ${index+1}`)})}
+function renderGallery(images,label,hex){if(!thumbnailsBox)return;const own=images.length>0;const gallery=own?images:baseGallery;thumbnailsBox.innerHTML='';gallery.forEach((src,index)=>{const b=document.createElement('button');b.type='button';b.className=`product-thumbnail${index===0?' selected':''}`;b.dataset.image=src;b.setAttribute('aria-label',`تصویر ${index+1}`);b.innerHTML=`<img src="${src}" alt="${productTitle} - تصویر ${index+1}">`;bindThumbnail(b,index,label);thumbnailsBox.appendChild(b)});if(gallery[0])changeMainImage(gallery[0],`${productTitle}${label?' - '+label:''}`);applyColorVisual(hex,own)}
+colorButtons.forEach(button=>button.addEventListener('click',()=>{colorButtons.forEach(x=>x.classList.remove('selected'));button.classList.add('selected');const id=button.dataset.colorId||'';const name=button.dataset.colorName||'';const hex=button.dataset.colorHex||'';const images=(button.dataset.gallery||'').split('|').filter(Boolean);if(colorId)colorId.value=id;if(colorName)colorName.textContent=name||'انتخاب کنید';renderGallery(images,name,hex)}));
+Array.from(document.querySelectorAll('.product-thumbnail')).forEach((b,i)=>bindThumbnail(b,i,''));const firstColor=colorButtons.find(b=>(b.dataset.gallery||'').length>0)||colorButtons[0];if(firstColor)firstColor.click();
+const qtyInput=document.getElementById('qty-input');document.getElementById('qty-minus')?.addEventListener('click',()=>{if(qtyInput)qtyInput.value=String(Math.max(1,Number(qtyInput.value||1)-1))});document.getElementById('qty-plus')?.addEventListener('click',()=>{if(qtyInput)qtyInput.value=String(Math.min(20,Number(qtyInput.value||1)+1))});qtyInput?.addEventListener('input',()=>{qtyInput.value=String(Math.max(1,Math.min(20,Number(qtyInput.value.replace(/\D/g,'')||1))) )});
+const form=document.getElementById('add-to-cart-form');form?.addEventListener('submit',event=>{if(colorButtons.length&&colorId&&!colorId.value){event.preventDefault();alert('لطفاً رنگ محصول را انتخاب کنید.');return}if(qtyInput)qtyInput.value=String(Math.max(1,Math.min(20,Number(qtyInput.value||1))))});
+const expand=document.getElementById('gallery-expand');const lightbox=document.getElementById('gallery-lightbox');const lightboxImage=document.getElementById('lightbox-image');const closeLightbox=()=>{lightbox?.classList.remove('is-open');lightbox?.setAttribute('aria-hidden','true');document.body.style.overflow=''};expand?.addEventListener('click',()=>{if(!mainImage||!lightbox)return;lightboxImage.src=mainImage.src;lightboxImage.alt=mainImage.alt;lightbox.classList.add('is-open');lightbox.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'});document.getElementById('lightbox-close')?.addEventListener('click',closeLightbox);lightbox?.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox()});document.getElementById('thumb-prev')?.addEventListener('click',()=>thumbnailsBox?.scrollBy({left:-180,behavior:'smooth'}));document.getElementById('thumb-next')?.addEventListener('click',()=>thumbnailsBox?.scrollBy({left:180,behavior:'smooth'}));
 </script>
 {% endblock %}
