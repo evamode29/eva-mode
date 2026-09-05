@@ -1,9 +1,80 @@
 {% extends "base.html" %}
 {% block title %}EVA MODE | فروشگاه تخصصی لباس زیر زنانه{% endblock %}
 {% block content %}
-<section class="hero"><div class="hero-content"><small>01 / EVA MODE</small><h1>زیبایی، ظرافت<br>و انتخابی که برای توست.</h1><p>مجموعه‌ای منتخب از لباس زیر زنانه با طراحی مینیمال، کیفیت بالا و انتخابی مطمئن.</p><a class="btn" href="/shop/">مشاهده فروشگاه</a></div></section>
-<div class="quick-searches"><strong>جستجوهای محبوب:</strong><a href="/shop/?category=bra">سوتین</a><a href="/shop/?category=brief">شورت</a><a href="/shop/?category=sets">ست‌ها</a><a href="/shop/?category=nightwear">لباس خواب</a></div>
-<section class="trust"><div>ارسال سریع و مطمئن</div><div>ضمانت کیفیت محصولات</div><div>پشتیبانی قبل و بعد از خرید</div></section>
-<section class="section"><div class="section-head"><div><small>02 / COLLECTION</small><h2>دسته‌بندی محصولات</h2></div><a href="/shop/">مشاهده همه ←</a></div><div class="categories">{% for c in categories %}<a class="category" href="/shop/?category={{ c.slug }}"><span>{{ c.name }}</span><b>←</b></a>{% empty %}<div class="empty">هنوز دسته‌بندی‌ای ثبت نشده است.</div>{% endfor %}</div></section>
-<section class="section"><div class="section-head"><div><small>03 / NEW ARRIVALS</small><h2>محصولات منتخب</h2></div><a href="/shop/">همه محصولات ←</a></div><div class="grid">{% for p in products %}<a class="card" href="{{ p.get_absolute_url }}"><div class="image">{% if p.primary_color and p.primary_color.image %}<img src="{{ p.primary_color.image.url }}" alt="{{ p.name }}">{% elif p.primary_image_url %}<img src="{{ p.primary_image_url }}" alt="{{ p.name }}">{% elif p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}">{% else %}<span>EVA MODE</span>{% endif %}{% if p.discount_percent %}<span class="discount-badge">{{ p.discount_percent }}٪ تخفیف</span>{% endif %}<span class="wishlist-badge" aria-label="افزودن به علاقه‌مندی">♡</span></div><div class="card-meta"><span>{{ p.category.name }}</span><span>★★★★★</span></div>{% if p.old_price %}<del>{{ p.old_price|floatformat:0 }} تومان</del>{% endif %}<h3>{{ p.name }}</h3><div class="price">{{ p.price|floatformat:0 }} تومان</div></a>{% empty %}<div class="empty">محصولی برای نمایش ثبت نشده است.</div>{% endfor %}</div></section>
+<div class="container">
+  <section class="hero-new" aria-label="معرفی EVA MODE">
+    <div class="hero-new-content">
+      <span class="hero-kicker">EVA MODE / NEW COLLECTION</span>
+      <h1>انتخابی ظریف،<br>برای حس بهتر تو.</h1>
+      <p>مجموعه‌ای منتخب از لباس زیر زنانه با طراحی مینیمال، کیفیت بالا و تجربه‌ای مطمئن از خرید آنلاین.</p>
+      <div class="hero-actions">
+        <a class="btn" href="/shop/">مشاهده محصولات</a>
+        <a class="hero-secondary" href="/shop/?q=جدید">تازه‌های EVA MODE ←</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="quick-searches" aria-label="جستجوهای محبوب">
+    <strong>جستجوهای محبوب:</strong>
+    <a href="/shop/?q=سوتین">سوتین</a>
+    <a href="/shop/?q=شورت">شورت</a>
+    <a href="/shop/?q=ست">ست‌ها</a>
+    <a href="/shop/?q=لباس خواب">لباس خواب</a>
+    <a href="/shop/?q=جدید">جدیدترین‌ها</a>
+  </div>
+
+  <section class="home-strip" aria-label="مزایای خرید">
+    <div class="home-strip-item"><span class="home-strip-icon">✦</span><div><strong>انتخاب دقیق</strong><span>محصولات منتخب و کاربردی</span></div></div>
+    <div class="home-strip-item"><span class="home-strip-icon">✓</span><div><strong>خرید مطمئن</strong><span>پرداخت و سفارش امن</span></div></div>
+    <div class="home-strip-item"><span class="home-strip-icon">↗</span><div><strong>ارسال سریع</strong><span>تحویل به سراسر ایران</span></div></div>
+    <div class="home-strip-item"><span class="home-strip-icon">♡</span><div><strong>پشتیبانی</strong><span>همراه شما قبل و بعد از خرید</span></div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div><small>01 / SHOP BY CATEGORY</small><h2>دسته‌بندی‌ها</h2><p class="section-note">سریع‌تر به انتخاب موردنظرت برس.</p></div>
+      <a href="/shop/">مشاهده همه ←</a>
+    </div>
+    <div class="home-category-grid">
+      {% for c in categories|slice:":5" %}
+      <a class="home-category-card" href="/shop/?category={{ c.slug }}">
+        <span class="home-category-arrow">←</span>
+        <div class="home-category-copy"><small>EVA COLLECTION</small><strong>{{ c.name }}</strong></div>
+      </a>
+      {% empty %}
+      <div class="empty">هنوز دسته‌بندی‌ای ثبت نشده است.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head product-section-head">
+      <div><small>02 / NEW & SELECTED</small><h2>محصولات منتخب</h2><p class="section-note">چند انتخاب تازه برای شروع خرید.</p></div>
+      <a href="/shop/">همه محصولات ←</a>
+    </div>
+    <div class="grid">
+      {% for p in products %}
+      <a class="card" href="{{ p.get_absolute_url }}">
+        <div class="image">
+          {% if p.primary_color and p.primary_color.image %}<img src="{{ p.primary_color.image.url }}" alt="{{ p.name }}">
+          {% elif p.primary_image_url %}<img src="{{ p.primary_image_url }}" alt="{{ p.name }}">
+          {% elif p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.name }}">
+          {% else %}<span>EVA MODE</span>{% endif %}
+          {% if p.discount_percent %}<span class="discount-badge">{{ p.discount_percent }}٪ تخفیف</span>{% endif %}
+          <span class="wishlist-badge" aria-label="افزودن به علاقه‌مندی">♡</span>
+        </div>
+        <div class="card-meta"><span>{{ p.category.name }}</span><span>★★★★★</span></div>
+        {% if p.old_price %}<del>{{ p.old_price|floatformat:0 }} تومان</del>{% endif %}
+        <h3>{{ p.name }}</h3>
+        <div class="price">{{ p.price|floatformat:0 }} تومان</div>
+      </a>
+      {% empty %}<div class="empty">محصولی برای نمایش ثبت نشده است.</div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="home-cta">
+    <div><strong>برای انتخاب بهتر آماده‌ای؟</strong><p>همه محصولات EVA MODE را ببین و انتخابت را شروع کن.</p></div>
+    <a class="btn" href="/shop/">ورود به فروشگاه ←</a>
+  </section>
+</div>
 {% endblock %}
