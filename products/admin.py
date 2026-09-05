@@ -1,12 +1,12 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
-from .models import Category, Product, ProductColor, ProductColorImage
+from .models import Category, Product, ProductColor, ProductColorImage, ProductImage
 
 
-class ProductColorImageInline(admin.TabularInline):
-    model = ProductColorImage
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
     extra = 1
-    min_num = 0
     fields = ("image", "preview", "sort_order", "is_active")
     readonly_fields = ("preview",)
     ordering = ("sort_order", "id")
@@ -15,9 +15,21 @@ class ProductColorImageInline(admin.TabularInline):
     def preview(self, obj):
         if not obj.image:
             return "—"
-        return admin.utils.mark_safe(
-            f'<img src="{obj.image.url}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #ddd;" />'
-        )
+        return format_html('<img src="{}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #ddd;" />', obj.image.url)
+
+
+class ProductColorImageInline(admin.TabularInline):
+    model = ProductColorImage
+    extra = 1
+    fields = ("image", "preview", "sort_order", "is_active")
+    readonly_fields = ("preview",)
+    ordering = ("sort_order", "id")
+
+    @admin.display(description="پیش‌نمایش")
+    def preview(self, obj):
+        if not obj.image:
+            return "—"
+        return format_html('<img src="{}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #ddd;" />', obj.image.url)
 
 
 class ProductColorInline(admin.TabularInline):
@@ -31,8 +43,7 @@ class ProductColorInline(admin.TabularInline):
     def gallery_count(self, obj):
         if not obj.pk:
             return "—"
-        count = obj.images.filter(is_active=True).count()
-        return f"{count} تصویر"
+        return f"{obj.images.filter(is_active=True).count()} تصویر"
 
 
 @admin.register(Category)
@@ -43,11 +54,30 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "price", "is_active", "created_at")
+    list_display = ("name", "category", "price", "image_count", "is_active", "created_at")
     list_filter = ("category", "is_active")
     search_fields = ("name", "description")
     prepopulated_fields = {"slug": ("name",)}
-    inlines = [ProductColorInline]
+    inlines = [ProductImageInline, ProductColorInline]
+
+    @admin.display(description="تصاویر محصول")
+    def image_count(self, obj):
+        return obj.images.filter(is_active=True).count()
+
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ("product", "preview", "sort_order", "is_active")
+    list_filter = ("is_active", "product__category")
+    search_fields = ("product__name",)
+    ordering = ("product", "sort_order", "id")
+    readonly_fields = ("preview",)
+
+    @admin.display(description="پیش‌نمایش")
+    def preview(self, obj):
+        if not obj.image:
+            return "—"
+        return format_html('<img src="{}" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #ddd;" />', obj.image.url)
 
 
 @admin.register(ProductColor)
