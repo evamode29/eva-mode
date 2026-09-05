@@ -9,7 +9,7 @@
 .product-thumbnails-wrap .thumb-arrow{margin-inline:auto}
 .gallery-trust-row{grid-column:1/-1;grid-row:2;padding-top:15px}
 
-/* Final gallery correction: large image left + small images vertically stacked on the right */
+/* Large image left + thumbnails vertically stacked on the right */
 @media(min-width:701px){
   .product-gallery-panel{direction:ltr!important;display:grid!important;grid-template-columns:minmax(0,1fr) 82px!important;grid-template-rows:auto auto!important;column-gap:14px!important;align-items:start!important}
   .gallery-stage{grid-column:1!important;grid-row:1!important;min-width:0!important}
@@ -35,3 +35,9 @@
   .product-thumbnails-wrap .thumb-arrow{margin:0!important;width:34px!important;height:34px!important;min-height:34px!important;flex-basis:34px!important}
   .gallery-trust-row{padding-top:12px!important}
 }
+
+/* Wishlist: icon only */
+.wishlist-btn{width:42px!important;height:42px!important;padding:0!important;display:inline-grid!important;place-items:center!important;border:1px solid #e8dfdb!important;border-radius:50%!important;background:#fff!important;font-size:25px!important;line-height:1!important;color:#7f6a70!important;transition:.2s ease!important}
+.wishlist-btn span{display:none!important}
+.wishlist-btn:hover,.wishlist-btn.is-favorite{color:#a34f61!important;border-color:#d9bcc4!important;background:#fff8fa!important}
+.wishlist-btn.is-favorite{font-size:24px!important}
