@@ -1,2 +1,137 @@
 {% load static %}
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>سبد خرید | EVA MODE</title><link rel="stylesheet" href="{% static 'css/eva.css' %}"></head><body><header class="header"><div class="container header-inner"><a class="brand" href="/">E<span>VA</span> MODE</a><a class="search" href="/shop/">⌕ <span>جستجو در محصولات...</span></a><nav><a href="/shop/">فروشگاه</a><a href="/account/">حساب من</a></nav><div class="actions"><a href="/cart/">🛍 سبد</a></div></div></header><main class="container cart-page"><div class="section-head"><div><small>CART / 01</small><h1>سبد خرید</h1></div></div>{% if items %}<div class="cart-layout"><section>{% for item in items %}<article class="cart-item"><div class="cart-thumb">{% if item.color and item.color.image %}<img src="{{ item.color.image.url }}" alt="{{ item.product.name }} - {{ item.color.name }}">{% elif item.product.image_url %}<img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">{% else %}<span>EVA MODE</span>{% endif %}</div><div class="cart-item-info"><a href="{{ item.product.get_absolute_url }}"><h3>{{ item.product.name }}</h3></a>{% if item.color %}<div>رنگ: <strong>{{ item.color.name }}</strong></div>{% endif %}<div class="cart-unit">{{ item.product.price|floatformat:0 }} تومان</div><form method="post" action="{% if item.color %}{% url 'cart:update_color' item.product.id item.color.id %}{% else %}{% url 'cart:update' item.product.id %}{% endif %}">{% csrf_token %}<input name="quantity" type="number" min="1" max="20" value="{{ item.quantity }}"><button type="submit">به‌روزرسانی</button></form></div><div class="cart-subtotal">{{ item.subtotal|floatformat:0 }} تومان<form method="post" action="{% if item.color %}{% url 'cart:remove_color' item.product.id item.color.id %}{% else %}{% url 'cart:remove' item.product.id %}{% endif %}">{% csrf_token %}<button type="submit">حذف</button></form></div></article>{% endfor %}</section><aside class="cart-summary"><small>SUMMARY</small><h2>خلاصه سفارش</h2><div><span>جمع کالاها</span><strong>{{ total|floatformat:0 }} تومان</strong></div><p>هزینه ارسال در مرحله ثبت سفارش محاسبه می‌شود.</p><a class="btn" href="{% url 'orders:checkout' %}">ادامه و ثبت سفارش</a></aside></div>{% else %}<section class="empty cart-empty"><h2>سبد خرید خالی است</h2><p>محصول مورد علاقه‌ات را انتخاب کن و به سبد اضافه کن.</p><a class="btn" href="/shop/">مشاهده فروشگاه</a></section>{% endif %}</main><footer class="footer"><div class="container"><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div></footer></body></html>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>سبد خرید | EVA MODE</title>
+  <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+  <link rel="stylesheet" href="{% static 'css/eva-luxury.css' %}">
+  <link rel="stylesheet" href="{% static 'css/eva-cart.css' %}">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <a class="brand" href="/">E<span>VA</span> MODE</a>
+      <a class="search" href="/shop/">⌕ <span>جستجو در محصولات...</span></a>
+      <nav>
+        <a href="/shop/">فروشگاه</a>
+        <a href="/account/">حساب من</a>
+      </nav>
+      <div class="actions">
+        <a href="/cart/">🛍 سبد</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container cart-page">
+    <div class="cart-top">
+      <div>
+        <span class="cart-kicker">EVA MODE / CART</span>
+        <h1>سبد خرید شما</h1>
+      </div>
+      {% if items %}
+        <div class="cart-top-note">{{ items|length }} محصول در سبد شما قرار دارد.</div>
+      {% endif %}
+    </div>
+
+    {% if items %}
+      <div class="cart-layout">
+        <section class="cart-list" aria-label="محصولات سبد خرید">
+          {% for item in items %}
+            <article class="cart-item">
+              <a class="cart-thumb" href="{{ item.product.get_absolute_url }}" aria-label="مشاهده {{ item.product.name }}">
+                {% if item.color and item.color.image %}
+                  <img src="{{ item.color.image.url }}" alt="{{ item.product.name }} - {{ item.color.name }}">
+                {% elif item.product.image_url %}
+                  <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}">
+                {% else %}
+                  <span>EVA MODE</span>
+                {% endif %}
+              </a>
+
+              <div class="cart-item-info">
+                {% if item.product.category %}
+                  <div class="cart-item-category">{{ item.product.category.name }}</div>
+                {% endif %}
+                <a class="cart-item-title" href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a>
+
+                <div class="cart-meta">
+                  {% if item.color %}
+                    <span>رنگ: <strong>{{ item.color.name }}</strong></span>
+                  {% endif %}
+                  <span class="cart-unit">قیمت واحد: <strong>{{ item.product.price|floatformat:0 }} تومان</strong></span>
+                </div>
+
+                <form class="cart-item-actions" method="post" action="{% if item.color %}{% url 'cart:update_color' item.product.id item.color.id %}{% else %}{% url 'cart:update' item.product.id %}{% endif %}">
+                  {% csrf_token %}
+                  <div class="cart-qty" aria-label="تعداد">
+                    <button type="submit" name="quantity" value="{{ item.quantity|add:'1' }}" aria-label="افزایش تعداد">+</button>
+                    <input name="quantity" type="number" min="1" max="20" value="{{ item.quantity }}" inputmode="numeric" aria-label="تعداد محصول">
+                    <button type="submit" name="quantity" value="{% if item.quantity > 1 %}{{ item.quantity|add:'-1' }}{% else %}1{% endif %}" aria-label="کاهش تعداد">−</button>
+                  </div>
+                  <button class="cart-update" type="submit">به‌روزرسانی</button>
+                </form>
+              </div>
+
+              <div class="cart-item-side">
+                <strong class="cart-subtotal">{{ item.subtotal|floatformat:0 }} تومان</strong>
+                <form method="post" action="{% if item.color %}{% url 'cart:remove_color' item.product.id item.color.id %}{% else %}{% url 'cart:remove' item.product.id %}{% endif %}">
+                  {% csrf_token %}
+                  <button class="cart-remove" type="submit">حذف از سبد</button>
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </section>
+
+        <aside class="cart-summary">
+          <span class="cart-summary-kicker">ORDER SUMMARY</span>
+          <h2>خلاصه سفارش</h2>
+
+          <div class="cart-summary-row">
+            <span>جمع کالاها</span>
+            <strong>{{ total|floatformat:0 }} تومان</strong>
+          </div>
+          <div class="cart-summary-row">
+            <span>هزینه ارسال</span>
+            <strong>محاسبه در مرحله بعد</strong>
+          </div>
+          <div class="cart-summary-row total">
+            <span>مبلغ قابل پرداخت</span>
+            <strong>{{ total|floatformat:0 }} تومان</strong>
+          </div>
+
+          <div class="cart-shipping">
+            <span class="cart-shipping-icon">✦</span>
+            <span>ارسال سریع و بسته‌بندی محرمانه EVA MODE در مرحله ثبت سفارش نهایی می‌شود.</span>
+          </div>
+
+          <a class="cart-checkout" href="{% url 'orders:checkout' %}">ادامه و ثبت سفارش <span>←</span></a>
+          <a class="cart-continue" href="/shop/">← ادامه خرید و مشاهده محصولات</a>
+        </aside>
+      </div>
+
+      <div class="cart-trust" aria-label="مزایای خرید">
+        <div class="cart-trust-item"><strong>خرید امن</strong><span>فرایند سفارش مطمئن</span></div>
+        <div class="cart-trust-item"><strong>بسته‌بندی محرمانه</strong><span>حفظ حریم خصوصی شما</span></div>
+        <div class="cart-trust-item"><strong>ارسال سریع</strong><span>ارسال به سراسر ایران</span></div>
+      </div>
+    {% else %}
+      <section class="cart-empty">
+        <div class="cart-empty-icon">♡</div>
+        <h2>سبد خرید شما خالی است</h2>
+        <p>هنوز انتخابی به سبد اضافه نکرده‌اید. کالکشن EVA MODE را ببینید و محصول مورد علاقه‌تان را انتخاب کنید.</p>
+        <a class="cart-checkout" href="/shop/">مشاهده فروشگاه <span>←</span></a>
+      </section>
+    {% endif %}
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <strong>EVA MODE</strong>
+      <span>فروشگاه تخصصی لباس زیر زنانه</span>
+    </div>
+  </footer>
+</body>
+</html>
