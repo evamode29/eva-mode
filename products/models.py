@@ -86,7 +86,6 @@ class Product(models.Model):
 
     @property
     def primary_image_url(self):
-        """Return the first gallery image, with a legacy slug-named fallback."""
         gallery = self.gallery_images
         if gallery:
             return gallery[0]
@@ -118,7 +117,7 @@ class ProductColor(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="colors", verbose_name="محصول")
     name = models.CharField("نام رنگ", max_length=50)
     hex_code = models.CharField("کد رنگ", max_length=7, blank=True, default="")
-    image = models.ImageField("تصویر رنگ", upload_to="products/colors/", blank=True, null=True)
+    image = models.ImageField("تصویر اصلی رنگ", upload_to="products/colors/", blank=True, null=True)
     is_active = models.BooleanField("فعال", default=True)
     sort_order = models.PositiveIntegerField("ترتیب", default=0)
 
@@ -132,3 +131,34 @@ class ProductColor(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"
+
+    @property
+    def gallery_images(self):
+        """Images belonging only to this color, ordered for the product gallery."""
+        images = list(self.images.filter(is_active=True).order_by("sort_order", "id"))
+        urls = [item.image.url for item in images if item.image]
+        if urls:
+            return urls
+        if self.image:
+            return [self.image.url]
+        return []
+
+    @property
+    def primary_image_url(self):
+        gallery = self.gallery_images
+        return gallery[0] if gallery else ""
+
+
+class ProductColorImage(models.Model):
+    color = models.ForeignKey(ProductColor, on_delete=models.CASCADE, related_name="images", verbose_name="رنگ")
+    image = models.ImageField("تصویر", upload_to="products/color-galleries/")
+    sort_order = models.PositiveIntegerField("ترتیب", default=0)
+    is_active = models.BooleanField("فعال", default=True)
+
+    class Meta:
+        verbose_name = "تصویر گالری رنگ"
+        verbose_name_plural = "تصاویر گالری رنگ"
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return f"{self.color.product.name} - {self.color.name} - {self.id}"
