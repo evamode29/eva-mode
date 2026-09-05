@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 
+from accounts.models import FavoriteProduct
+
 from .models import Category, Product
 
 
@@ -44,7 +46,11 @@ def detail(request, slug):
         slug=slug,
         is_active=True,
     )
+    is_favorite = request.user.is_authenticated and FavoriteProduct.objects.filter(
+        user=request.user, product=product
+    ).exists()
     return render(request, "products/detail.html", {
         "product": product,
         "categories": Category.objects.all(),
+        "is_favorite": is_favorite,
     })
