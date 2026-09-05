@@ -45,8 +45,48 @@ class Product(models.Model):
         return self.colors.filter(is_active=True).first()
 
     @property
+    def gallery_images(self):
+        """Return local product gallery images in natural filename order."""
+        media_root = Path(settings.MEDIA_ROOT)
+        products_root = media_root / "products"
+        if not products_root.exists():
+            return []
+
+        extensions = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
+        candidates = []
+        category_slug = self.category.slug if self.category_id else ""
+        folders = [
+            products_root / category_slug / self.slug,
+            products_root / self.slug,
+        ]
+
+        for folder in folders:
+            if not folder.is_dir():
+                continue
+            candidates = [
+                path for path in folder.iterdir()
+                if path.is_file() and path.suffix.lower() in extensions
+            ]
+            if candidates:
+                break
+
+        def natural_key(path):
+            stem = path.stem.lower()
+            return (0, int(stem)) if stem.isdigit() else (1, stem)
+
+        candidates.sort(key=natural_key)
+        return [
+            f"{settings.MEDIA_URL.rstrip('/')}/{path.relative_to(media_root).as_posix()}"
+            for path in candidates
+        ]
+
+    @property
     def primary_image_url(self):
-        """Find a local image whose filename exactly matches the product slug."""
+        """Find the first local gallery image, then a legacy slug-named image."""
+        gallery = self.gallery_images
+        if gallery:
+            return gallery[0]
+
         media_root = Path(settings.MEDIA_ROOT)
         products_root = media_root / "products"
         if not products_root.exists():
