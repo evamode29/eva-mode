@@ -4,11 +4,101 @@
 <main class="container detail">
   <a class="back" href="/shop/">→ بازگشت به فروشگاه</a>
   <div class="detail-grid">
-    <div class="detail-image" id="product-image-box">{% if product.primary_color and product.primary_color.image %}<img id="product-main-image" src="{{ product.primary_color.image.url }}" alt="{{ product.name }} - {{ product.primary_color.name }}">{% elif product.primary_image_url %}<img id="product-main-image" src="{{ product.primary_image_url }}" alt="{{ product.name }}">{% elif product.image_url %}<img id="product-main-image" src="{{ product.image_url }}" alt="{{ product.name }}">{% else %}<span>EVA MODE</span>{% endif %}</div>
-    <div class="detail-info"><small>{{ product.category.name }}</small><h1>{{ product.name }}</h1>{% if product.old_price %}<del>{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}<div class="detail-price">{{ product.price|floatformat:0 }} تومان</div>{% if product.description %}<p>{{ product.description }}</p>{% else %}<p>محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>{% endif %}
-      <form method="post" action="{% url 'cart:add' product.id %}" id="add-to-cart-form">{% csrf_token %}{% if product.colors.all %}<div class="color-picker"><span class="color-picker-label">رنگ: <strong id="selected-color-name">انتخاب نشده</strong></span><div class="color-options">{% for color in product.colors.all %}{% if color.is_active %}<button class="color-option" type="button" data-color-id="{{ color.id }}" data-color-name="{{ color.name }}" data-image="{% if color.image %}{{ color.image.url }}{% endif %}" aria-label="{{ color.name }}"><span class="color-dot"{% if color.hex_code %} style="background:{{ color.hex_code }}"{% endif %}></span><span class="color-name">{{ color.name }}</span></button>{% endif %}{% endfor %}</div></div><input type="hidden" name="color_id" id="selected-color-id" value="">{% endif %}<button class="btn" type="submit">افزودن به سبد خرید</button></form>
+    <div class="product-gallery">
+      <div class="detail-image" id="product-image-box">
+        {% if product.gallery_images %}
+          <img id="product-main-image" src="{{ product.gallery_images.0 }}" alt="{{ product.name }}">
+        {% elif product.primary_color and product.primary_color.image %}
+          <img id="product-main-image" src="{{ product.primary_color.image.url }}" alt="{{ product.name }} - {{ product.primary_color.name }}">
+        {% elif product.image_url %}
+          <img id="product-main-image" src="{{ product.image_url }}" alt="{{ product.name }}">
+        {% else %}
+          <span>EVA MODE</span>
+        {% endif %}
+      </div>
+      {% if product.gallery_images|length > 1 %}
+        <div class="product-thumbnails" aria-label="تصاویر محصول">
+          {% for image_url in product.gallery_images %}
+            <button class="product-thumbnail{% if forloop.first %} selected{% endif %}" type="button" data-image="{{ image_url }}" aria-label="تصویر {{ forloop.counter }}">
+              <img src="{{ image_url }}" alt="{{ product.name }} - تصویر {{ forloop.counter }}">
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="detail-info">
+      <small>{{ product.category.name }}</small>
+      <h1>{{ product.name }}</h1>
+      {% if product.old_price %}<del>{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}
+      <div class="detail-price">{{ product.price|floatformat:0 }} تومان</div>
+      {% if product.description %}<p>{{ product.description }}</p>{% else %}<p>محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>{% endif %}
+
+      <form method="post" action="{% url 'cart:add' product.id %}" id="add-to-cart-form">
+        {% csrf_token %}
+        {% if product.colors.all %}
+          <div class="color-picker">
+            <span class="color-picker-label">رنگ: <strong id="selected-color-name">انتخاب نشده</strong></span>
+            <div class="color-options">
+              {% for color in product.colors.all %}
+                {% if color.is_active %}
+                  <button class="color-option" type="button" data-color-id="{{ color.id }}" data-color-name="{{ color.name }}" data-image="{% if color.image %}{{ color.image.url }}{% endif %}" aria-label="{{ color.name }}">
+                    <span class="color-dot"{% if color.hex_code %} style="background:{{ color.hex_code }}"{% endif %}></span>
+                    <span class="color-name">{{ color.name }}</span>
+                  </button>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <input type="hidden" name="color_id" id="selected-color-id" value="">
+        {% endif %}
+        <button class="btn" type="submit">افزودن به سبد خرید</button>
+      </form>
     </div>
   </div>
 </main>
-<script>const image=document.getElementById('product-main-image'),colorId=document.getElementById('selected-color-id'),colorName=document.getElementById('selected-color-name'),buttons=document.querySelectorAll('.color-option');buttons.forEach(button=>button.addEventListener('click',()=>{buttons.forEach(item=>item.classList.remove('selected'));button.classList.add('selected');if(colorId)colorId.value=button.dataset.colorId||'';if(colorName)colorName.textContent=button.dataset.colorName||'';if(image&&button.dataset.image){image.src=button.dataset.image;image.alt=`${document.title.split(' | ')[0]} - ${button.dataset.colorName||''}`}}));const form=document.getElementById('add-to-cart-form');if(form&&colorId)form.addEventListener('submit',event=>{if(buttons.length&&!colorId.value){event.preventDefault();alert('لطفاً رنگ محصول را انتخاب کنید.')}});</script>
+
+<style>
+.product-gallery{min-width:0}.product-thumbnails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.product-thumbnail{padding:0;border:1px solid var(--border);background:#fff;border-radius:13px;overflow:hidden;cursor:pointer;aspect-ratio:4/5;transition:.2s}.product-thumbnail:hover,.product-thumbnail.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}.product-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}.detail-image img{transition:opacity .18s ease}
+@media(max-width:800px){.detail-grid{grid-template-columns:1fr;gap:20px}.detail-info{padding:15px 5px 0}.product-thumbnails{grid-template-columns:repeat(4,1fr);gap:7px}.detail-image{border-radius:20px}}
+</style>
+
+<script>
+const image=document.getElementById('product-main-image');
+const thumbnails=document.querySelectorAll('.product-thumbnail');
+const colorId=document.getElementById('selected-color-id');
+const colorName=document.getElementById('selected-color-name');
+const colorButtons=document.querySelectorAll('.color-option');
+
+function changeMainImage(src, alt){
+  if(!image || !src)return;
+  image.style.opacity='0.35';
+  setTimeout(()=>{image.src=src;image.alt=alt||image.alt;image.style.opacity='1'},120);
+}
+
+thumbnails.forEach(button=>button.addEventListener('click',()=>{
+  thumbnails.forEach(item=>item.classList.remove('selected'));
+  button.classList.add('selected');
+  changeMainImage(button.dataset.image, document.title.split(' | ')[0]);
+}));
+
+colorButtons.forEach(button=>button.addEventListener('click',()=>{
+  colorButtons.forEach(item=>item.classList.remove('selected'));
+  button.classList.add('selected');
+  if(colorId)colorId.value=button.dataset.colorId||'';
+  if(colorName)colorName.textContent=button.dataset.colorName||'';
+  if(button.dataset.image){
+    changeMainImage(button.dataset.image, `${document.title.split(' | ')[0]} - ${button.dataset.colorName||''}`);
+    thumbnails.forEach(item=>item.classList.remove('selected'));
+  }
+}));
+
+const form=document.getElementById('add-to-cart-form');
+if(form&&colorId)form.addEventListener('submit',event=>{
+  if(colorButtons.length&&!colorId.value){
+    event.preventDefault();
+    alert('لطفاً رنگ محصول را انتخاب کنید.');
+  }
+});
+</script>
 {% endblock %}
