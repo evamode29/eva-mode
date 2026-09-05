@@ -36,8 +36,10 @@
   .gallery-trust-row{padding-top:12px!important}
 }
 
-/* Wishlist: icon only */
-.wishlist-btn{width:42px!important;height:42px!important;padding:0!important;display:inline-grid!important;place-items:center!important;border:1px solid #e8dfdb!important;border-radius:50%!important;background:#fff!important;font-size:25px!important;line-height:1!important;color:#7f6a70!important;transition:.2s ease!important}
+/* Wishlist: outline heart by default, filled heart when selected */
+.wishlist-btn{width:42px!important;height:42px!important;padding:0!important;display:inline-grid!important;place-items:center!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;font-size:30px!important;line-height:1!important;color:#7f6a70!important;cursor:pointer!important;transition:transform .2s ease,color .2s ease!important}
 .wishlist-btn span{display:none!important}
-.wishlist-btn:hover,.wishlist-btn.is-favorite{color:#a34f61!important;border-color:#d9bcc4!important;background:#fff8fa!important}
-.wishlist-btn.is-favorite{font-size:24px!important}
+.wishlist-btn:hover{color:#a34f61!important;transform:scale(1.08)!important}
+.wishlist-btn.is-favorite{color:#a34f61!important;font-size:29px!important}
+.wishlist-btn:focus-visible{outline:2px solid #c9aeb5!important;outline-offset:3px!important;border-radius:6px!important}
+.wishlist-btn:disabled{opacity:.65!important;cursor:wait!important}
