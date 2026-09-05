@@ -53,13 +53,17 @@ class Product(models.Model):
             return []
 
         extensions = {".jpg", ".jpeg", ".png", ".webp", ".avif"}
-        candidates = []
         category_slug = self.category.slug if self.category_id else ""
-        folders = [
-            products_root / category_slug / self.slug,
-            products_root / self.slug,
-        ]
+        category_folders = [category_slug]
+        if category_slug == "briefs":
+            category_folders.append("panties")
+        elif category_slug == "panties":
+            category_folders.append("briefs")
 
+        folders = [products_root / folder / self.slug for folder in category_folders]
+        folders.append(products_root / self.slug)
+
+        candidates = []
         for folder in folders:
             if not folder.is_dir():
                 continue
@@ -82,7 +86,7 @@ class Product(models.Model):
 
     @property
     def primary_image_url(self):
-        """Find the first local gallery image, then a legacy slug-named image."""
+        """Return the first gallery image, with a legacy slug-named fallback."""
         gallery = self.gallery_images
         if gallery:
             return gallery[0]
