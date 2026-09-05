@@ -46,7 +46,11 @@ class Product(models.Model):
 
     @property
     def gallery_images(self):
-        """Return local product gallery images in natural filename order."""
+        """Uploaded product images first; keep legacy media-folder fallback."""
+        uploaded = [item.image.url for item in self.images.filter(is_active=True).order_by("sort_order", "id") if item.image]
+        if uploaded:
+            return uploaded
+
         media_root = Path(settings.MEDIA_ROOT)
         products_root = media_root / "products"
         if not products_root.exists():
@@ -113,6 +117,21 @@ class Product(models.Model):
         return 0
 
 
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="images", verbose_name="محصول")
+    image = models.ImageField("تصویر محصول", upload_to="products/gallery/")
+    sort_order = models.PositiveIntegerField("ترتیب", default=0)
+    is_active = models.BooleanField("فعال", default=True)
+
+    class Meta:
+        verbose_name = "تصویر محصول"
+        verbose_name_plural = "تصاویر محصولات"
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.id}"
+
+
 class ProductColor(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="colors", verbose_name="محصول")
     name = models.CharField("نام رنگ", max_length=50)
@@ -134,7 +153,6 @@ class ProductColor(models.Model):
 
     @property
     def gallery_images(self):
-        """Images belonging only to this color, ordered for the product gallery."""
         images = list(self.images.filter(is_active=True).order_by("sort_order", "id"))
         urls = [item.image.url for item in images if item.image]
         if urls:
