@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
 
@@ -40,6 +43,31 @@ class Product(models.Model):
     @property
     def primary_color(self):
         return self.colors.filter(is_active=True).first()
+
+    @property
+    def primary_image_url(self):
+        """Find a local image whose filename exactly matches the product slug."""
+        media_root = Path(settings.MEDIA_ROOT)
+        products_root = media_root / "products"
+        if not products_root.exists():
+            return ""
+
+        extensions = (".jpg", ".jpeg", ".png", ".webp", ".avif")
+        for extension in extensions:
+            matches = products_root.rglob(f"{self.slug}{extension}")
+            try:
+                image_path = next(matches)
+            except StopIteration:
+                continue
+            relative_path = image_path.relative_to(media_root).as_posix()
+            return f"{settings.MEDIA_URL.rstrip('/')}/{relative_path}"
+        return ""
+
+    @property
+    def discount_percent(self):
+        if self.old_price and self.old_price > self.price:
+            return round((self.old_price - self.price) * 100 / self.old_price)
+        return 0
 
 
 class ProductColor(models.Model):
