@@ -32,46 +32,28 @@ export function ProductDetailsClient({
   stock,
   primaryImage,
 }: ProductDetailsClientProps) {
-  const [
-    selectedColorId,
-    setSelectedColorId,
-  ] = useState<string | null>(
+  const [selectedColorId, setSelectedColorId] = useState<string | null>(
     colors[0]?.id ?? null
   );
 
-  const selectedColorImage =
-    useMemo(() => {
-      if (!selectedColorId) {
-        return primaryImage;
-      }
+  const selectedColorImage = useMemo(() => {
+    if (!selectedColorId) return primaryImage;
 
-      return (
-        images.find(
-          (image) =>
-            image.colorId ===
-              selectedColorId &&
-            image.isPrimary
-        ) ??
-        images.find(
-          (image) =>
-            image.colorId ===
-            selectedColorId
-        ) ??
-        primaryImage
-      );
-    }, [
-      images,
-      selectedColorId,
-      primaryImage,
-    ]);
+    return (
+      images.find(
+        (image) =>
+          image.colorId === selectedColorId && image.isPrimary
+      ) ??
+      images.find((image) => image.colorId === selectedColorId) ??
+      primaryImage
+    );
+  }, [images, selectedColorId, primaryImage]);
 
   return (
     <div className="product-detail">
       <ProductGallery
         images={images}
-        selectedColorId={
-          selectedColorId
-        }
+        selectedColorId={selectedColorId}
       />
 
       <ProductInfo
@@ -80,12 +62,9 @@ export function ProductDetailsClient({
         sizes={sizes}
         variants={variants}
         stock={stock}
-        primaryImage={
-          selectedColorImage
-        }
-        onColorChange={
-          setSelectedColorId
-        }
+        primaryImage={selectedColorImage}
+        selectedColorId={selectedColorId}
+        onColorChange={setSelectedColorId}
       />
     </div>
   );
