@@ -4,19 +4,12 @@ from .models import Category, Product
 
 
 def _prepare_products(products):
-    """Add lightweight display data used by product cards."""
-    for product in products:
-        product.primary_color = product.colors.filter(is_active=True).first()
-        product.discount_percent = 0
-        if product.old_price and product.old_price > product.price:
-            product.discount_percent = round(
-                (product.old_price - product.price) * 100 / product.old_price
-            )
+    """Prepare product cards without overriding model properties."""
     return products
 
 
 def home(request):
-    products = Product.objects.filter(is_active=True).prefetch_related("colors")[:8]
+    products = Product.objects.filter(is_active=True).select_related("category").prefetch_related("colors")[:8]
     products = _prepare_products(products)
     categories = Category.objects.all()
     return render(request, "home.html", {"products": products, "categories": categories})
@@ -44,13 +37,6 @@ def detail(request, slug):
         slug=slug,
         is_active=True,
     )
-    product.primary_color = product.colors.filter(is_active=True).first()
-    if product.old_price and product.old_price > product.price:
-        product.discount_percent = round(
-            (product.old_price - product.price) * 100 / product.old_price
-        )
-    else:
-        product.discount_percent = 0
     return render(request, "products/detail.html", {
         "product": product,
         "categories": Category.objects.all(),
