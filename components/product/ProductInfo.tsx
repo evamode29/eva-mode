@@ -18,9 +18,7 @@ import type {
 } from "@/types";
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat(
-    "fa-IR"
-  ).format(value);
+  return new Intl.NumberFormat("fa-IR").format(value);
 }
 
 type ProductInfoProps = {
@@ -30,9 +28,8 @@ type ProductInfoProps = {
   variants: ProductVariant[];
   stock: number;
   primaryImage: ProductImage | null;
-  onColorChange?: (
-    colorId: string | null
-  ) => void;
+  selectedColorId?: string | null;
+  onColorChange?: (colorId: string | null) => void;
 };
 
 export function ProductInfo({
@@ -42,139 +39,93 @@ export function ProductInfo({
   variants,
   stock,
   primaryImage,
+  selectedColorId: controlledColorId,
   onColorChange,
 }: ProductInfoProps) {
   const router = useRouter();
   const { addItem } = useCart();
 
   const activeVariants = useMemo(
-    () =>
-      variants.filter(
-        (variant) => variant.isActive
-      ),
+    () => variants.filter((variant) => variant.isActive),
     [variants]
   );
 
-  const [selectedColorId, setSelectedColorId] =
-    useState<string | null>(
-      colors[0]?.id ?? null
-    );
+  const [internalColorId, setInternalColorId] = useState<string | null>(
+    colors[0]?.id ?? null
+  );
 
-  const [selectedSizeId, setSelectedSizeId] =
-    useState<string | null>(
-      sizes[0]?.id ?? null
-    );
+  const selectedColorId =
+    controlledColorId !== undefined
+      ? controlledColorId
+      : internalColorId;
 
-  /*
-   * سایزهایی که برای رنگ انتخاب‌شده
-   * واقعاً Variant فعال دارند.
-   */
+  const [selectedSizeId, setSelectedSizeId] = useState<string | null>(
+    sizes[0]?.id ?? null
+  );
+
   const availableSizeIds = useMemo(() => {
-    if (!selectedColorId) {
-      return [];
-    }
+    if (!selectedColorId) return [];
 
     return activeVariants
       .filter(
         (variant) =>
-          variant.colorId ===
-            selectedColorId &&
-          variant.stock > 0
+          variant.colorId === selectedColorId && variant.stock > 0
       )
       .map((variant) => variant.sizeId);
-  }, [
-    activeVariants,
-    selectedColorId,
-  ]);
+  }, [activeVariants, selectedColorId]);
 
-  /*
-   * اگر سایز فعلی برای رنگ جدید موجود نبود،
-   * اولین سایز موجود را انتخاب می‌کنیم.
-   */
   useEffect(() => {
-    if (
-      availableSizeIds.length === 0
-    ) {
+    if (availableSizeIds.length === 0) {
       setSelectedSizeId(null);
       return;
     }
 
     if (
       selectedSizeId &&
-      availableSizeIds.includes(
-        selectedSizeId
-      )
+      availableSizeIds.includes(selectedSizeId)
     ) {
       return;
     }
 
-    setSelectedSizeId(
-      availableSizeIds[0]
-    );
-  }, [
-    availableSizeIds,
-    selectedSizeId,
-  ]);
+    setSelectedSizeId(availableSizeIds[0]);
+  }, [availableSizeIds, selectedSizeId]);
 
   const selectedVariant = useMemo(() => {
-    if (
-      !selectedColorId ||
-      !selectedSizeId
-    ) {
-      return null;
-    }
+    if (!selectedColorId || !selectedSizeId) return null;
 
     return (
       activeVariants.find(
         (variant) =>
-          variant.colorId ===
-            selectedColorId &&
-          variant.sizeId ===
-            selectedSizeId
+          variant.colorId === selectedColorId &&
+          variant.sizeId === selectedSizeId
       ) ?? null
     );
-  }, [
-    activeVariants,
-    selectedColorId,
-    selectedSizeId,
-  ]);
+  }, [activeVariants, selectedColorId, selectedSizeId]);
 
   const selectedColor = colors.find(
-    (color) =>
-      color.id === selectedColorId
+    (color) => color.id === selectedColorId
   );
 
   const selectedSize = sizes.find(
-    (size) =>
-      size.id === selectedSizeId
+    (size) => size.id === selectedSizeId
   );
 
-  const available =
-    product.isActive && stock > 0;
-
+  const available = product.isActive && stock > 0;
   const variantAvailable =
-    selectedVariant !== null &&
-    selectedVariant.stock > 0;
+    selectedVariant !== null && selectedVariant.stock > 0;
 
-  const displayPrice =
-    selectedVariant?.price ??
-    product.basePrice;
+  const displayPrice = selectedVariant?.price ?? product.basePrice;
 
-  function handleColorChange(
-    colorId: string
-  ) {
-    setSelectedColorId(colorId);
+  function handleColorChange(colorId: string) {
+    if (controlledColorId === undefined) {
+      setInternalColorId(colorId);
+    }
 
     onColorChange?.(colorId);
   }
 
   function handleAddToCart() {
-    if (
-      !selectedVariant ||
-      !variantAvailable
-    ) {
-      return;
-    }
+    if (!selectedVariant || !variantAvailable) return;
 
     addItem({
       id: selectedVariant.id,
@@ -182,10 +133,8 @@ export function ProductInfo({
       variantId: selectedVariant.id,
       name: product.name,
       image: primaryImage?.src ?? "",
-      colorName:
-        selectedColor?.name ?? "",
-      sizeName:
-        selectedSize?.name ?? "",
+      colorName: selectedColor?.name ?? "",
+      sizeName: selectedSize?.name ?? "",
       price: selectedVariant.price,
     });
 
@@ -195,93 +144,54 @@ export function ProductInfo({
   return (
     <div className="product-info">
       <div className="product-info-top">
-        <Badge
-          tone={
-            available
-              ? "success"
-              : "sale"
-          }
-        >
-          {available
-            ? "موجود"
-            : "ناموجود"}
+        <Badge tone={available ? "success" : "sale"}>
+          {available ? "موجود" : "ناموجود"}
         </Badge>
-
-        <span>
-          برند: {product.brand}
-        </span>
+        <span>برند: {product.brand}</span>
       </div>
 
       <h1>{product.name}</h1>
 
-      <p className="product-description">
-        {product.description}
-      </p>
+      <p className="product-description">{product.description}</p>
 
       <div className="product-price">
-        <strong>
-          {formatPrice(displayPrice)}
-        </strong>
-
+        <strong>{formatPrice(displayPrice)}</strong>
         <span>تومان</span>
-
         {product.compareAtPrice && (
-          <del>
-            {formatPrice(
-              product.compareAtPrice
-            )}
-          </del>
+          <del>{formatPrice(product.compareAtPrice)}</del>
         )}
       </div>
 
       <ColorSelector
         colors={colors}
-        selectedColorId={
-          selectedColorId
-        }
-        onSelect={
-          handleColorChange
-        }
+        selectedColorId={selectedColorId}
+        onSelect={handleColorChange}
       />
 
       <SizeSelector
         sizes={sizes}
-        selectedSizeId={
-          selectedSizeId
-        }
-        availableSizeIds={
-          availableSizeIds
-        }
-        onSelect={
-          setSelectedSizeId
-        }
+        selectedSizeId={selectedSizeId}
+        availableSizeIds={availableSizeIds}
+        onSelect={setSelectedSizeId}
       />
 
-      {selectedColorId &&
-        availableSizeIds.length === 0 && (
-          <p className="product-availability-message product-availability-message--error">
-            این رنگ در حال حاضر موجود نیست.
-          </p>
-        )}
+      {selectedColorId && availableSizeIds.length === 0 && (
+        <p className="product-availability-message product-availability-message--error">
+          این رنگ در حال حاضر موجود نیست.
+        </p>
+      )}
 
-      {selectedVariant &&
-        selectedVariant.stock > 0 && (
-          <p className="product-availability-message">
-            موجودی:{" "}
-            {formatPrice(
-              selectedVariant.stock
-            )}{" "}
-            عدد
-          </p>
-        )}
+      {selectedVariant && selectedVariant.stock > 0 && (
+        <p className="product-availability-message">
+          موجودی: {formatPrice(selectedVariant.stock)} عدد
+        </p>
+      )}
 
-      {selectedVariant &&
-        selectedVariant.stock <= 0 && (
-          <p className="product-availability-message product-availability-message--error">
-            این سایز و رنگ در حال حاضر
-            موجود نیست.
-          </p>
-        )}
+      {selectedVariant && selectedVariant.stock <= 0 && (
+        <p className="product-availability-message product-availability-message--error">
+          این سایز و رنگ در حال حاضر موجود نیست.
+        </p>
+      )}
 
       {!selectedVariant &&
         selectedColorId &&
@@ -297,9 +207,7 @@ export function ProductInfo({
         disabled={!variantAvailable}
         onClick={handleAddToCart}
       >
-        {variantAvailable
-          ? "افزودن به سبد"
-          : "ناموجود"}
+        {variantAvailable ? "افزودن به سبد" : "ناموجود"}
       </Button>
     </div>
   );
