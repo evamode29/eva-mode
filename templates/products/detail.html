@@ -3,47 +3,72 @@
 {% block content %}
 <main class="container detail">
   <a class="back" href="/shop/">→ بازگشت به فروشگاه</a>
+
   <div class="detail-grid">
     <div class="product-gallery">
       <div class="detail-image" id="product-image-box">
         {% if product.gallery_images %}
           <img id="product-main-image" src="{{ product.gallery_images.0 }}" alt="{{ product.name }}">
-        {% elif product.primary_color and product.primary_color.image %}
-          <img id="product-main-image" src="{{ product.primary_color.image.url }}" alt="{{ product.name }} - {{ product.primary_color.name }}">
+        {% elif product.primary_color and product.primary_color.primary_image_url %}
+          <img id="product-main-image" src="{{ product.primary_color.primary_image_url }}" alt="{{ product.name }} - {{ product.primary_color.name }}">
         {% elif product.image_url %}
           <img id="product-main-image" src="{{ product.image_url }}" alt="{{ product.name }}">
         {% else %}
           <span>EVA MODE</span>
         {% endif %}
       </div>
-      {% if product.gallery_images|length > 1 %}
-        <div class="product-thumbnails" aria-label="تصاویر محصول">
-          {% for image_url in product.gallery_images %}
-            <button class="product-thumbnail{% if forloop.first %} selected{% endif %}" type="button" data-image="{{ image_url }}" aria-label="تصویر {{ forloop.counter }}">
-              <img src="{{ image_url }}" alt="{{ product.name }} - تصویر {{ forloop.counter }}">
-            </button>
-          {% endfor %}
-        </div>
-      {% endif %}
+
+      <div class="product-thumbnails" id="product-thumbnails" aria-label="تصاویر محصول">
+        {% for image_url in product.gallery_images %}
+          <button class="product-thumbnail{% if forloop.first %} selected{% endif %}" type="button" data-image="{{ image_url }}" aria-label="تصویر {{ forloop.counter }}">
+            <img src="{{ image_url }}" alt="{{ product.name }} - تصویر {{ forloop.counter }}">
+          </button>
+        {% endfor %}
+      </div>
     </div>
 
     <div class="detail-info">
       <small>{{ product.category.name }}</small>
       <h1>{{ product.name }}</h1>
-      {% if product.old_price %}<del>{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}
+
+      {% if product.old_price %}
+        <del>{{ product.old_price|floatformat:0 }} تومان</del>
+      {% endif %}
       <div class="detail-price">{{ product.price|floatformat:0 }} تومان</div>
-      {% if product.description %}<p>{{ product.description }}</p>{% else %}<p>محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>{% endif %}
+
+      {% if product.description %}
+        <p>{{ product.description }}</p>
+      {% else %}
+        <p>محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>
+      {% endif %}
 
       <form method="post" action="{% url 'cart:add' product.id %}" id="add-to-cart-form">
         {% csrf_token %}
+
         {% if product.colors.all %}
           <div class="color-picker">
-            <span class="color-picker-label">رنگ: <strong id="selected-color-name">انتخاب نشده</strong></span>
-            <div class="color-options">
+            <div class="color-picker-label">
+              <span>رنگ:</span>
+              <strong id="selected-color-name">انتخاب کنید</strong>
+            </div>
+
+            <div class="color-options" id="color-options">
               {% for color in product.colors.all %}
                 {% if color.is_active %}
-                  <button class="color-option" type="button" data-color-id="{{ color.id }}" data-color-name="{{ color.name }}" data-image="{% if color.image %}{{ color.image.url }}{% endif %}" aria-label="{{ color.name }}">
-                    <span class="color-dot"{% if color.hex_code %} style="background:{{ color.hex_code }}"{% endif %}></span>
+                  <button
+                    class="color-option"
+                    type="button"
+                    data-color-id="{{ color.id }}"
+                    data-color-name="{{ color.name }}"
+                    data-gallery="{% for color_image in color.gallery_images %}{{ color_image }}{% if not forloop.last %}|{% endif %}{% endfor %}"
+                    aria-label="{{ color.name }}"
+                    title="{{ color.name }}"
+                  >
+                    {% if color.primary_image_url %}
+                      <span class="color-preview" style="background-image:url('{{ color.primary_image_url }}')"></span>
+                    {% else %}
+                      <span class="color-dot"{% if color.hex_code %} style="background:{{ color.hex_code }}"{% endif %}></span>
+                    {% endif %}
                     <span class="color-name">{{ color.name }}</span>
                   </button>
                 {% endif %}
@@ -52,6 +77,7 @@
           </div>
           <input type="hidden" name="color_id" id="selected-color-id" value="">
         {% endif %}
+
         <button class="btn" type="submit">افزودن به سبد خرید</button>
       </form>
     </div>
@@ -59,46 +85,103 @@
 </main>
 
 <style>
-.product-gallery{min-width:0}.product-thumbnails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.product-thumbnail{padding:0;border:1px solid var(--border);background:#fff;border-radius:13px;overflow:hidden;cursor:pointer;aspect-ratio:4/5;transition:.2s}.product-thumbnail:hover,.product-thumbnail.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}.product-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}.detail-image img{transition:opacity .18s ease}
-@media(max-width:800px){.detail-grid{grid-template-columns:1fr;gap:20px}.detail-info{padding:15px 5px 0}.product-thumbnails{grid-template-columns:repeat(4,1fr);gap:7px}.detail-image{border-radius:20px}}
+.product-gallery{min-width:0}
+.detail-image{overflow:hidden}
+.detail-image img{transition:opacity .18s ease;width:100%;height:100%;object-fit:cover;display:block}
+.product-thumbnails{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}
+.product-thumbnail{padding:0;border:1px solid var(--border);background:#fff;border-radius:13px;overflow:hidden;cursor:pointer;aspect-ratio:4/5;transition:.2s}
+.product-thumbnail:hover,.product-thumbnail.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}
+.product-thumbnail img{width:100%;height:100%;object-fit:cover;display:block}
+.color-picker{margin:24px 0 20px;padding-top:4px}
+.color-picker-label{display:flex;align-items:center;gap:8px;margin-bottom:13px;font-size:14px}
+.color-picker-label strong{font-weight:700;color:var(--text)}
+.color-options{display:flex;flex-wrap:wrap;gap:10px}
+.color-option{display:inline-flex;align-items:center;gap:8px;padding:6px 10px 6px 8px;border:1px solid var(--border);background:#fff;border-radius:999px;cursor:pointer;color:var(--text);transition:.2s}
+.color-option:hover,.color-option.selected{border-color:var(--accent);box-shadow:0 0 0 3px #f2e6ea}
+.color-preview,.color-dot{width:34px;height:34px;display:block;flex:0 0 34px;border-radius:50%;border:1px solid rgba(0,0,0,.08)}
+.color-preview{background-position:center;background-size:cover;background-repeat:no-repeat}
+.color-dot{background:#eee}
+.color-name{font-size:13px;white-space:nowrap}
+@media(max-width:800px){
+  .detail-grid{grid-template-columns:1fr;gap:20px}
+  .detail-info{padding:15px 5px 0}
+  .product-thumbnails{grid-template-columns:repeat(4,1fr);gap:7px}
+  .detail-image{border-radius:20px}
+}
 </style>
 
 <script>
-const image=document.getElementById('product-main-image');
-const thumbnails=document.querySelectorAll('.product-thumbnail');
-const colorId=document.getElementById('selected-color-id');
-const colorName=document.getElementById('selected-color-name');
-const colorButtons=document.querySelectorAll('.color-option');
+const mainImage = document.getElementById('product-main-image');
+const thumbnailsBox = document.getElementById('product-thumbnails');
+const colorId = document.getElementById('selected-color-id');
+const colorName = document.getElementById('selected-color-name');
+const colorButtons = Array.from(document.querySelectorAll('.color-option'));
 
-function changeMainImage(src, alt){
-  if(!image || !src)return;
-  image.style.opacity='0.35';
-  setTimeout(()=>{image.src=src;image.alt=alt||image.alt;image.style.opacity='1'},120);
+const baseGallery = Array.from(document.querySelectorAll('.product-thumbnail')).map((button) => button.dataset.image).filter(Boolean);
+
+function changeMainImage(src, alt) {
+  if (!mainImage || !src) return;
+  mainImage.style.opacity = '0.35';
+  setTimeout(() => {
+    mainImage.src = src;
+    mainImage.alt = alt || mainImage.alt;
+    mainImage.style.opacity = '1';
+  }, 120);
 }
 
-thumbnails.forEach(button=>button.addEventListener('click',()=>{
-  thumbnails.forEach(item=>item.classList.remove('selected'));
-  button.classList.add('selected');
-  changeMainImage(button.dataset.image, document.title.split(' | ')[0]);
-}));
+function renderGallery(images, colorLabel) {
+  if (!thumbnailsBox) return;
+  const gallery = images.length ? images : baseGallery;
+  thumbnailsBox.innerHTML = '';
 
-colorButtons.forEach(button=>button.addEventListener('click',()=>{
-  colorButtons.forEach(item=>item.classList.remove('selected'));
-  button.classList.add('selected');
-  if(colorId)colorId.value=button.dataset.colorId||'';
-  if(colorName)colorName.textContent=button.dataset.colorName||'';
-  if(button.dataset.image){
-    changeMainImage(button.dataset.image, `${document.title.split(' | ')[0]} - ${button.dataset.colorName||''}`);
-    thumbnails.forEach(item=>item.classList.remove('selected'));
-  }
-}));
+  gallery.forEach((src, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `product-thumbnail${index === 0 ? ' selected' : ''}`;
+    button.dataset.image = src;
+    button.setAttribute('aria-label', `تصویر ${index + 1}`);
+    button.innerHTML = `<img src="${src}" alt="${colorLabel || document.title.split(' | ')[0]} - تصویر ${index + 1}">`;
+    button.addEventListener('click', () => {
+      document.querySelectorAll('.product-thumbnail').forEach((item) => item.classList.remove('selected'));
+      button.classList.add('selected');
+      changeMainImage(src, colorLabel ? `${document.title.split(' | ')[0]} - ${colorLabel}` : document.title.split(' | ')[0]);
+    });
+    thumbnailsBox.appendChild(button);
+  });
 
-const form=document.getElementById('add-to-cart-form');
-if(form&&colorId)form.addEventListener('submit',event=>{
-  if(colorButtons.length&&!colorId.value){
-    event.preventDefault();
-    alert('لطفاً رنگ محصول را انتخاب کنید.');
+  if (gallery[0]) {
+    changeMainImage(gallery[0], colorLabel ? `${document.title.split(' | ')[0]} - ${colorLabel}` : document.title.split(' | ')[0]);
   }
+}
+
+colorButtons.forEach((button, index) => {
+  button.addEventListener('click', () => {
+    colorButtons.forEach((item) => item.classList.remove('selected'));
+    button.classList.add('selected');
+
+    const id = button.dataset.colorId || '';
+    const name = button.dataset.colorName || '';
+    const images = (button.dataset.gallery || '').split('|').filter(Boolean);
+
+    if (colorId) colorId.value = id;
+    if (colorName) colorName.textContent = name || 'انتخاب کنید';
+
+    renderGallery(images, name);
+  });
 });
+
+// مانند فروشگاه‌های حرفه‌ای: اولین رنگ دارای تصویر به‌صورت پیش‌فرض فعال می‌شود.
+const firstColor = colorButtons.find((button) => (button.dataset.gallery || '').length > 0) || colorButtons[0];
+if (firstColor) firstColor.click();
+
+const form = document.getElementById('add-to-cart-form');
+if (form && colorId) {
+  form.addEventListener('submit', (event) => {
+    if (colorButtons.length && !colorId.value) {
+      event.preventDefault();
+      alert('لطفاً رنگ محصول را انتخاب کنید.');
+    }
+  });
+}
 </script>
 {% endblock %}
