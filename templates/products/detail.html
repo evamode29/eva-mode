@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ product.name }} | EVA MODE">
   <title>{{ product.name }} | EVA MODE</title>
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
 </head>
@@ -16,55 +17,63 @@
 </div></header>
 
 <main class="container product-page">
-  <a class="back" href="/shop/">← بازگشت به فروشگاه</a>
+  <a class="back" href="/shop/">→ بازگشت به فروشگاه</a>
   <div class="product-detail">
     <div class="product-gallery">
       <div class="detail-image" id="product-gallery">
-        {% if product.image_url %}<img id="main-product-image" src="{{ product.image_url }}" alt="{{ product.name }}">
-        {% elif product.gallery.all %}{% for image in product.gallery.all|slice:":1" %}<img id="main-product-image" src="{{ image.image_url }}" alt="{{ image.alt_text|default:product.name }}">{% endfor %}
-        {% else %}<span>EVA MODE</span>{% endif %}
+        {% if product.main_image_url %}<img id="main-product-image" src="{{ product.main_image_url }}" alt="{{ product.name }}">
+        {% else %}{% for image in product.gallery.all|slice:":1" %}<img id="main-product-image" src="{{ image.display_url }}" alt="{{ image.alt_text|default:product.name }}">{% empty %}<span>EVA MODE</span>{% endfor %}{% endif %}
+        <span class="detail-label">EVA / COLLECTION</span>
       </div>
-      {% if product.gallery.all %}
-      <div class="thumbs">
-        {% for image in product.gallery.all %}
-        <button type="button" class="thumb" data-image="{{ image.image_url }}"><img src="{{ image.image_url }}" alt="{{ image.alt_text|default:product.name }}"></button>
-        {% endfor %}
+      <div class="thumbs" id="product-thumbs">
+        {% if product.main_image_url %}<button type="button" class="thumb is-active" data-image="{{ product.main_image_url }}"><img src="{{ product.main_image_url }}" alt="{{ product.name }}"></button>{% endif %}
+        {% for image in product.gallery.all %}{% if image.display_url %}<button type="button" class="thumb" data-image="{{ image.display_url }}"><img src="{{ image.display_url }}" alt="{{ image.alt_text|default:product.name }}"></button>{% endif %}{% endfor %}
       </div>
-      {% endif %}
     </div>
 
     <div class="product-info">
       <small>{{ product.category.name }}</small>
       <h1>{{ product.name }}</h1>
       <div class="rating-line"><span>★★★★★</span><span>انتخاب لوکس EVA MODE</span></div>
-      {% if product.old_price %}<del class="old-price">{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}
-      <div class="detail-price" id="product-price">{{ product.price|floatformat:0 }} تومان</div>
-      {% if product.description %}<p class="desc">{{ product.description }}</p>{% else %}<p class="desc">محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>{% endif %}
+      <div class="price-block">{% if product.old_price %}<del class="old-price">{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}<div class="detail-price" id="product-price">{{ product.price|floatformat:0 }} تومان</div></div>
+      {% if product.description %}<p class="desc">{{ product.description }}</p>{% else %}<p class="desc">طراحی ظریف و انتخاب‌شده برای مجموعه EVA MODE؛ جزئیات محصول را با دقت بررسی و انتخاب کن.</p>{% endif %}
 
       {% if product.colors.all %}
       <div class="option-block">
         <div class="option-title">رنگ: <strong id="selected-color">انتخاب نشده</strong></div>
         <div class="color-list">
           {% for item in product.colors.all %}
-          <button type="button" class="color-swatch {% if forloop.first %}is-selected{% endif %}" style="--swatch: {{ item.color.hex_code }}" data-name="{{ item.color.name }}" data-image="{{ item.image_url }}" data-hover="{{ item.hover_image_url }}" title="{{ item.color.name }}"><span></span></button>
+          <button type="button" class="color-swatch {% if forloop.first %}is-selected{% endif %}" style="--swatch: {{ item.color.hex_code }}" data-name="{{ item.color.name }}" data-image="{{ item.display_image_url }}" data-hover="{{ item.display_hover_image_url }}" title="{{ item.color.name }}" aria-label="رنگ {{ item.color.name }}"><span></span></button>
           {% endfor %}
         </div>
       </div>
       {% endif %}
 
+      {% if product.sizes.all %}
+      <div class="option-block">
+        <div class="option-title">سایز: <strong id="selected-size">انتخاب نشده</strong></div>
+        <div class="size-list">
+          {% for item in product.sizes.all %}{% if item.is_active %}<button type="button" class="size-option {% if item.stock == 0 %}is-disabled{% endif %}" data-size="{{ item.size.name }}" {% if item.stock == 0 %}disabled{% endif %}>{{ item.size.name }}</button>{% endif %}{% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
       <button class="btn add-cart" type="button">افزودن به سبد خرید</button>
-      <div class="product-benefits"><div>✓ کیفیت انتخاب‌شده برای EVA MODE</div><div>✓ بسته‌بندی شیک و مطمئن</div><div>✓ پشتیبانی قبل و بعد از خرید</div></div>
+      <div class="product-benefits"><div>✓ ارسال سریع و بسته‌بندی مطمئن</div><div>✓ انتخاب دقیق رنگ و سایز</div><div>✓ پشتیبانی EVA MODE قبل و بعد از خرید</div></div>
     </div>
   </div>
 </main>
-<footer class="footer"><div class="container"><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div></footer>
+<footer class="footer"><div class="container"><div><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div><span>© EVA MODE</span></div></footer>
 
 <script>
 (function () {
   const main = document.getElementById('main-product-image');
-  const selected = document.getElementById('selected-color');
+  const selectedColor = document.getElementById('selected-color');
+  const selectedSize = document.getElementById('selected-size');
   document.querySelectorAll('.thumb').forEach(function (button) {
     button.addEventListener('click', function () {
+      document.querySelectorAll('.thumb').forEach(function (item) { item.classList.remove('is-active'); });
+      button.classList.add('is-active');
       if (main && button.dataset.image) main.src = button.dataset.image;
     });
   });
@@ -72,12 +81,19 @@
     button.addEventListener('click', function () {
       document.querySelectorAll('.color-swatch').forEach(function (item) { item.classList.remove('is-selected'); });
       button.classList.add('is-selected');
-      if (selected) selected.textContent = button.dataset.name || '';
+      if (selectedColor) selectedColor.textContent = button.dataset.name || '';
       if (main && button.dataset.image) main.src = button.dataset.image;
     });
   });
-  const first = document.querySelector('.color-swatch');
-  if (first && selected) selected.textContent = first.dataset.name || '';
+  document.querySelectorAll('.size-option').forEach(function (button) {
+    button.addEventListener('click', function () {
+      document.querySelectorAll('.size-option').forEach(function (item) { item.classList.remove('is-selected'); });
+      button.classList.add('is-selected');
+      if (selectedSize) selectedSize.textContent = button.dataset.size || '';
+    });
+  });
+  const firstColor = document.querySelector('.color-swatch');
+  if (firstColor && selectedColor) selectedColor.textContent = firstColor.dataset.name || '';
 })();
 </script>
 </body></html>
