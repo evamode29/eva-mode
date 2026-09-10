@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="خرید لباس زیر زنانه از EVA MODE؛ انتخابی مدرن، ظریف و مطمئن.">
   <title>فروشگاه | EVA MODE</title>
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
 </head>
@@ -16,18 +17,21 @@
 </div></header>
 
 <main class="container shop-page">
-  <div class="section-head"><div><small>01 / SHOP</small><h1>فروشگاه EVA MODE</h1></div><span>{{ products|length }} محصول</span></div>
+  <div class="shop-hero"><div><small>01 / SHOP</small><h1>فروشگاه EVA MODE</h1><p>انتخابی دقیق از مدل‌ها، رنگ‌ها و سایزها.</p></div><span class="result-count">{{ products|length }} محصول</span></div>
+  <div class="category-pills"><a class="pill {% if not request.GET.category %}active{% endif %}" href="/shop/">همه</a>{% for c in categories %}<a class="pill {% if request.GET.category == c.slug %}active{% endif %}" href="?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}</div>
   <div class="grid">
     {% for p in products %}
     <a class="card product-card" href="{{ p.get_absolute_url }}">
       <div class="product-media">
-        {% if p.image_url %}
-          <img class="product-image primary-image" src="{{ p.image_url }}" alt="{{ p.name }}">
-          {% if p.hover_image_url %}<img class="product-image hover-image" src="{{ p.hover_image_url }}" alt="{{ p.name }} - نمای دوم">{% endif %}
-        {% elif p.gallery.all %}
-          {% for image in p.gallery.all|slice:":2" %}<img class="product-image {% if forloop.counter == 2 %}hover-image{% else %}primary-image{% endif %}" src="{{ image.image_url }}" alt="{{ image.alt_text|default:p.name }}">{% endfor %}
-        {% else %}<span class="image-placeholder">EVA MODE</span>{% endif %}
+        {% if p.main_image_url %}
+          <img class="product-image primary-image" src="{{ p.main_image_url }}" alt="{{ p.name }}" loading="lazy">
+          {% if p.main_hover_image_url %}<img class="product-image hover-image" src="{{ p.main_hover_image_url }}" alt="{{ p.name }} - نمای دوم" loading="lazy">{% endif %}
+        {% else %}
+          {% for image in p.gallery.all|slice:":2" %}<img class="product-image {% if forloop.counter == 2 %}hover-image{% else %}primary-image{% endif %}" src="{{ image.display_url }}" alt="{{ image.alt_text|default:p.name }}" loading="lazy">
+          {% empty %}<span class="image-placeholder">EVA MODE</span>{% endfor %}
+        {% endif %}
         {% if p.old_price %}<span class="sale-badge">SALE</span>{% endif %}
+        <span class="quick-view">مشاهده ←</span>
       </div>
       <div class="product-meta">
         <span class="product-category">{{ p.category.name }}</span>
@@ -35,8 +39,8 @@
         <div class="price-row">{% if p.old_price %}<del>{{ p.old_price|floatformat:0 }}</del>{% endif %}<span class="price">{{ p.price|floatformat:0 }} تومان</span></div>
       </div>
     </a>
-    {% empty %}<div class="empty">هنوز محصولی برای نمایش ثبت نشده است.</div>{% endfor %}
+    {% empty %}<div class="empty">برای این دسته‌بندی محصولی ثبت نشده است.</div>{% endfor %}
   </div>
 </main>
-<footer class="footer"><div class="container"><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div></footer>
+<footer class="footer"><div class="container"><div><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div><span>© EVA MODE</span></div></footer>
 </body></html>
