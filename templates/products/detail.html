@@ -1,2 +1,83 @@
 {% load static %}
-<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{ product.name }} | EVA MODE</title><link rel="stylesheet" href="{% static 'css/eva.css' %}"></head><body><header class="header"><div class="container header-inner"><a class="brand" href="/">E<span>VA</span> MODE</a><a class="search" href="/shop/">⌕ <span>جستجو در محصولات، دسته‌بندی‌ها...</span></a><nav><a href="/shop/">فروشگاه</a><a href="/shop/?category={{ product.category.slug }}">{{ product.category.name }}</a></nav><div class="actions"><a href="/account/">♙ حساب</a><a href="/shop/">🛍 سبد</a></div></div></header><main class="container detail"><a class="back" href="/shop/">← بازگشت به فروشگاه</a><div class="detail-grid"><div class="detail-image">{% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}">{% else %}<span>EVA MODE</span>{% endif %}</div><div class="detail-info"><small>{{ product.category.name }}</small><h1>{{ product.name }}</h1>{% if product.old_price %}<del>{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}<div class="detail-price">{{ product.price|floatformat:0 }} تومان</div>{% if product.description %}<p>{{ product.description }}</p>{% else %}<p>محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>{% endif %}<button class="btn" type="button">افزودن به سبد خرید</button></div></div></main><footer class="footer"><div class="container"><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div></footer></body></html>
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ product.name }} | EVA MODE</title>
+  <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+</head>
+<body>
+<header class="header"><div class="container header-inner">
+  <a class="brand" href="/">E<span>VA</span> MODE</a>
+  <a class="search" href="/shop/">⌕ <span>جستجو در محصولات، دسته‌بندی‌ها...</span></a>
+  <nav><a href="/shop/">فروشگاه</a><a href="/shop/?category={{ product.category.slug }}">{{ product.category.name }}</a></nav>
+  <div class="actions"><a href="/account/">♙ حساب</a><a href="/shop/">🛍 سبد</a></div>
+</div></header>
+
+<main class="container product-page">
+  <a class="back" href="/shop/">← بازگشت به فروشگاه</a>
+  <div class="product-detail">
+    <div class="product-gallery">
+      <div class="detail-image" id="product-gallery">
+        {% if product.image_url %}<img id="main-product-image" src="{{ product.image_url }}" alt="{{ product.name }}">
+        {% elif product.gallery.all %}{% for image in product.gallery.all|slice:":1" %}<img id="main-product-image" src="{{ image.image_url }}" alt="{{ image.alt_text|default:product.name }}">{% endfor %}
+        {% else %}<span>EVA MODE</span>{% endif %}
+      </div>
+      {% if product.gallery.all %}
+      <div class="thumbs">
+        {% for image in product.gallery.all %}
+        <button type="button" class="thumb" data-image="{{ image.image_url }}"><img src="{{ image.image_url }}" alt="{{ image.alt_text|default:product.name }}"></button>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="product-info">
+      <small>{{ product.category.name }}</small>
+      <h1>{{ product.name }}</h1>
+      <div class="rating-line"><span>★★★★★</span><span>انتخاب لوکس EVA MODE</span></div>
+      {% if product.old_price %}<del class="old-price">{{ product.old_price|floatformat:0 }} تومان</del>{% endif %}
+      <div class="detail-price" id="product-price">{{ product.price|floatformat:0 }} تومان</div>
+      {% if product.description %}<p class="desc">{{ product.description }}</p>{% else %}<p class="desc">محصولی با انتخابی دقیق و طراحی ظریف برای EVA MODE.</p>{% endif %}
+
+      {% if product.colors.all %}
+      <div class="option-block">
+        <div class="option-title">رنگ: <strong id="selected-color">انتخاب نشده</strong></div>
+        <div class="color-list">
+          {% for item in product.colors.all %}
+          <button type="button" class="color-swatch {% if forloop.first %}is-selected{% endif %}" style="--swatch: {{ item.color.hex_code }}" data-name="{{ item.color.name }}" data-image="{{ item.image_url }}" data-hover="{{ item.hover_image_url }}" title="{{ item.color.name }}"><span></span></button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <button class="btn add-cart" type="button">افزودن به سبد خرید</button>
+      <div class="product-benefits"><div>✓ کیفیت انتخاب‌شده برای EVA MODE</div><div>✓ بسته‌بندی شیک و مطمئن</div><div>✓ پشتیبانی قبل و بعد از خرید</div></div>
+    </div>
+  </div>
+</main>
+<footer class="footer"><div class="container"><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div></footer>
+
+<script>
+(function () {
+  const main = document.getElementById('main-product-image');
+  const selected = document.getElementById('selected-color');
+  document.querySelectorAll('.thumb').forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (main && button.dataset.image) main.src = button.dataset.image;
+    });
+  });
+  document.querySelectorAll('.color-swatch').forEach(function (button) {
+    button.addEventListener('click', function () {
+      document.querySelectorAll('.color-swatch').forEach(function (item) { item.classList.remove('is-selected'); });
+      button.classList.add('is-selected');
+      if (selected) selected.textContent = button.dataset.name || '';
+      if (main && button.dataset.image) main.src = button.dataset.image;
+    });
+  });
+  const first = document.querySelector('.color-swatch');
+  if (first && selected) selected.textContent = first.dataset.name || '';
+})();
+</script>
+</body></html>
