@@ -1,11 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Django local files
+/db.sqlite3
+/media/
+/staticfiles/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Node / legacy build artifacts
 node_modules/
 .next/
 out/
-
 .open-next/
 .wrangler/
 
+# Logs
 *.log
 
-.env*
-!.env.example
+# IDE
+.vscode/
+.idea/
