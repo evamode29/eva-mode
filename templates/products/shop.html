@@ -11,14 +11,42 @@
 <body>
 <header class="header"><div class="container header-inner">
   <a class="brand" href="/">E<span>VA</span> MODE</a>
-  <a class="search" href="/shop/">⌕ <span>جستجو در محصولات، دسته‌بندی‌ها...</span></a>
-  <nav><a href="/shop/">فروشگاه</a>{% for c in categories %}<a href="?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}</nav>
-  <div class="actions"><a href="/account/">♙ حساب</a><a href="/shop/">🛍 سبد</a></div>
+  <form class="search search-form" action="/shop/" method="get">
+    {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+    <span aria-hidden="true">⌕</span>
+    <input name="q" value="{{ search_query }}" placeholder="جستجو در محصولات و دسته‌بندی‌ها..." aria-label="جستجوی محصولات">
+    {% if search_query %}<a href="{% if selected_category %}/shop/?category={{ selected_category }}{% else %}/shop/{% endif %}" aria-label="پاک کردن جستجو">×</a>{% endif %}
+  </form>
+  <nav aria-label="منوی اصلی"><a href="/shop/">فروشگاه</a>{% for c in categories %}<a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}</nav>
+  <div class="actions"><a href="/shop/">حساب</a><a href="/shop/">سبد</a></div>
 </div></header>
 
 <main class="container shop-page">
-  <div class="shop-hero"><div><small>01 / SHOP</small><h1>فروشگاه EVA MODE</h1><p>انتخابی دقیق از مدل‌ها، رنگ‌ها و سایزها.</p></div><span class="result-count">{{ products|length }} محصول</span></div>
-  <div class="category-pills"><a class="pill {% if not request.GET.category %}active{% endif %}" href="/shop/">همه</a>{% for c in categories %}<a class="pill {% if request.GET.category == c.slug %}active{% endif %}" href="?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}</div>
+  <div class="shop-hero">
+    <div><small>01 / SHOP</small><h1>فروشگاه EVA MODE</h1><p>انتخابی دقیق از مدل‌ها، رنگ‌ها و سایزها.</p></div>
+    <span class="result-count">{{ products|length }} محصول</span>
+  </div>
+
+  <div class="category-pills">
+    <a class="pill {% if not selected_category %}active{% endif %}" href="{% if search_query %}/shop/?q={{ search_query|urlencode }}{% else %}/shop/{% endif %}">همه</a>
+    {% for c in categories %}<a class="pill {% if selected_category == c.slug %}active{% endif %}" href="/shop/?category={{ c.slug }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}">{{ c.name }}</a>{% endfor %}
+  </div>
+
+  <div class="shop-toolbar">
+    <form method="get" class="sort-form">
+      {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+      {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+      <label for="sort">مرتب‌سازی</label>
+      <select id="sort" name="sort" onchange="this.form.submit()">
+        <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+        <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>ارزان‌ترین</option>
+        <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>گران‌ترین</option>
+        <option value="oldest" {% if selected_sort == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
+      </select>
+    </form>
+    {% if search_query %}<div class="search-result">نتایج جستجو برای «{{ search_query }}»</div>{% endif %}
+  </div>
+
   <div class="grid">
     {% for p in products %}
     <a class="card product-card" href="{{ p.get_absolute_url }}">
@@ -31,6 +59,7 @@
           {% empty %}<span class="image-placeholder">EVA MODE</span>{% endfor %}
         {% endif %}
         {% if p.old_price %}<span class="sale-badge">SALE</span>{% endif %}
+        {% if not p.sizes.all %}<span class="stock-badge">موجود</span>{% endif %}
         <span class="quick-view">مشاهده ←</span>
       </div>
       <div class="product-meta">
@@ -39,7 +68,7 @@
         <div class="price-row">{% if p.old_price %}<del>{{ p.old_price|floatformat:0 }}</del>{% endif %}<span class="price">{{ p.price|floatformat:0 }} تومان</span></div>
       </div>
     </a>
-    {% empty %}<div class="empty">برای این دسته‌بندی محصولی ثبت نشده است.</div>{% endfor %}
+    {% empty %}<div class="empty"><strong>محصولی پیدا نشد</strong><span>جستجو یا فیلتر دیگری را امتحان کن.</span><a class="btn" href="/shop/">نمایش همه محصولات</a></div>{% endfor %}
   </div>
 </main>
 <footer class="footer"><div class="container"><div><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div><span>© EVA MODE</span></div></footer>
