@@ -12,5 +12,7 @@ urlpatterns = [
     path("", home, name="home"),
 ]
 
+# Media files are served by Django only during local development.
+# On cPanel/production, configure the web server to serve MEDIA_ROOT directly.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
