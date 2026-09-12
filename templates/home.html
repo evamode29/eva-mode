@@ -4,75 +4,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="EVA MODE؛ فروشگاه تخصصی لباس زیر زنانه با انتخابی لوکس و مدرن.">
-  <title>EVA MODE | فروشگاه تخصصی لباس زیر زنانه</title>
+  <meta name="description" content="EVA MODE؛ به‌زودی با یک تجربه متفاوت از مد و ظرافت در کنار شماست.">
+  <title>EVA MODE | به‌زودی</title>
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
+  <style>
+    .coming-soon{min-height:calc(100vh - 77px);display:grid;place-items:center;padding:30px 20px;position:relative;overflow:hidden;background:radial-gradient(circle at 15% 20%,rgba(152,126,107,.14),transparent 30%),radial-gradient(circle at 85% 80%,rgba(152,126,107,.10),transparent 28%),var(--bg)}
+    .coming-card{width:min(760px,100%);text-align:center;padding:70px 30px;border:1px solid var(--border);border-radius:30px;background:rgba(255,253,250,.78);box-shadow:0 30px 90px rgba(33,31,29,.10);backdrop-filter:blur(16px)}
+    .coming-logo{font-size:clamp(34px,7vw,64px);font-weight:700;letter-spacing:7px;margin:0 0 22px}.coming-logo span{font-weight:400;color:var(--accent)}
+    .coming-kicker{display:inline-block;color:var(--accent);font-size:11px;font-weight:700;letter-spacing:3px;margin-bottom:12px}
+    .coming-card h1{font-size:clamp(30px,5vw,48px);line-height:1.35;margin:0 0 18px}.coming-card p{max-width:560px;margin:0 auto 30px;color:var(--muted);font-size:15px;line-height:2}
+    .coming-line{width:70px;height:2px;background:var(--accent);margin:0 auto 28px;border-radius:99px}.coming-note{font-size:10px;color:var(--muted);letter-spacing:2px}
+    .coming-footer{position:absolute;bottom:22px;left:0;right:0;text-align:center;color:var(--muted);font-size:10px}
+    @media(max-width:600px){.coming-card{padding:55px 22px;border-radius:24px}.coming-card p{font-size:13px}.coming-logo{letter-spacing:4px}}
+  </style>
 </head>
 <body>
-<header class="header">
-  <div class="container header-inner">
-    <a class="brand" href="/" aria-label="EVA MODE">E<span>VA</span> MODE</a>
-    <a class="search" href="/shop/" aria-label="جستجوی محصولات">⌕ <span>جستجو در محصولات، دسته‌بندی‌ها...</span></a>
-    <nav aria-label="منوی اصلی">
-      <a href="/shop/">فروشگاه</a>
-      {% for c in categories %}<a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>{% endfor %}
-    </nav>
-    <div class="actions"><a href="/account/">♙ حساب</a><a href="/shop/">🛍 سبد</a></div>
-  </div>
-</header>
-
-<main>
-  <section class="hero">
-    <div class="hero-content">
-      <small>01 / EVA MODE</small>
-      <h1>زیبایی، ظرافت<br>و انتخابی که برای توست.</h1>
-      <p>مجموعه‌ای منتخب از لباس زیر زنانه؛ با طراحی مینیمال، انتخاب دقیق و حس لوکس در هر جزئیات.</p>
-      <div class="hero-actions"><a class="btn" href="/shop/">مشاهده فروشگاه</a><a class="text-link" href="#collection">کشف کالکشن ←</a></div>
-    </div>
-    <div class="hero-note">EVA / PRIVATE COLLECTION</div>
-  </section>
-
-  <section class="trust" aria-label="مزایای خرید">
-    <div><b>ارسال سریع</b><span>بسته‌بندی مطمئن و شیک</span></div>
-    <div><b>انتخاب مطمئن</b><span>اطلاعات کامل رنگ، سایز و موجودی</span></div>
-    <div><b>پشتیبانی EVA</b><span>همراه تو قبل و بعد از خرید</span></div>
-  </section>
-
-  <section class="section" id="collection">
-    <div class="section-head"><div><small>02 / COLLECTION</small><h2>دسته‌بندی‌ها</h2></div><a href="/shop/">مشاهده همه ←</a></div>
-    <div class="categories">
-      {% for c in categories %}<a class="category" href="/shop/?category={{ c.slug }}"><span>{{ c.name }}</span><b>←</b></a>
-      {% empty %}<p class="empty">هنوز دسته‌بندی‌ای ثبت نشده است.</p>{% endfor %}
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-head"><div><small>03 / SELECTED</small><h2>منتخب EVA MODE</h2></div><a href="/shop/">همه محصولات ←</a></div>
-    <div class="grid">
-      {% for p in products %}
-      <a class="card product-card" href="{{ p.get_absolute_url }}">
-        <div class="product-media">
-          {% if p.main_image_url %}
-            <img class="product-image primary-image" src="{{ p.main_image_url }}" alt="{{ p.name }}" loading="lazy">
-            {% if p.main_hover_image_url %}<img class="product-image hover-image" src="{{ p.main_hover_image_url }}" alt="{{ p.name }} - نمای دوم" loading="lazy">{% endif %}
-          {% else %}
-            {% for image in p.gallery.all|slice:":2" %}<img class="product-image {% if forloop.counter == 2 %}hover-image{% else %}primary-image{% endif %}" src="{{ image.display_url }}" alt="{{ image.alt_text|default:p.name }}" loading="lazy">
-            {% empty %}<span class="image-placeholder">EVA MODE</span>{% endfor %}
-          {% endif %}
-          {% if p.old_price %}<span class="sale-badge">SALE</span>{% endif %}
-          <span class="quick-view">مشاهده محصول</span>
-        </div>
-        <div class="product-meta">
-          <span class="product-category">{{ p.category.name }}</span>
-          <h3>{{ p.name }}</h3>
-          <div class="price-row">{% if p.old_price %}<del>{{ p.old_price|floatformat:0 }}</del>{% endif %}<span class="price">{{ p.price|floatformat:0 }} تومان</span></div>
-        </div>
-      </a>
-      {% empty %}<p class="empty">هنوز محصولی برای نمایش ثبت نشده است.</p>{% endfor %}
-    </div>
-  </section>
-</main>
-
-<footer class="footer"><div class="container"><div><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div><span>© EVA MODE</span></div></footer>
+  <main class="coming-soon">
+    <section class="coming-card" aria-labelledby="coming-title">
+      <span class="coming-kicker">EVA MODE / PRIVATE COLLECTION</span>
+      <div class="coming-logo" aria-label="EVA MODE">E<span>VA</span> MODE</div>
+      <div class="coming-line"></div>
+      <h1 id="coming-title">به‌زودی با یک تجربه متفاوت برمی‌گردیم.</h1>
+      <p>فروشگاه EVA MODE در حال آماده‌سازی یک تجربه تازه، لوکس و متفاوت برای توست. کمی صبر کن؛ اتفاق زیبایی در راه است.</p>
+      <span class="coming-note">SOMETHING BEAUTIFUL IS COMING</span>
+    </section>
+    <div class="coming-footer">EVA MODE · فروشگاه تخصصی لباس زیر زنانه</div>
+  </main>
 </body>
 </html>
