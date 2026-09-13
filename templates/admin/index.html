@@ -1,0 +1,55 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block content %}
+<div class="eva-dashboard">
+  <div class="eva-dashboard-hero">
+    <div>
+      <span class="eva-kicker">EVA MODE / CONTROL CENTER</span>
+      <h1>مرکز مدیریت فروشگاه</h1>
+      <p>محصولات، تصاویر، رنگ‌ها، سایزها و موجودی را از یکجا مدیریت کن.</p>
+    </div>
+    <a class="eva-primary" href="/" target="_blank" rel="noopener">مشاهده فروشگاه ↗</a>
+  </div>
+
+  <div class="eva-quick-grid">
+    <a class="eva-quick-card featured" href="{% url 'admin:products_product_add' %}">
+      <span class="eva-card-icon">＋</span>
+      <small>PRODUCTS</small>
+      <strong>افزودن محصول جدید</strong>
+      <span>نام، قیمت، تصویر، رنگ و سایز را ثبت کن.</span>
+    </a>
+    <a class="eva-quick-card" href="{% url 'admin:products_product_changelist' %}">
+      <span class="eva-card-icon">◫</span>
+      <small>CATALOG</small>
+      <strong>مدیریت محصولات</strong>
+      <span>ویرایش، جستجو، فعال/غیرفعال کردن و بررسی موجودی.</span>
+    </a>
+    <a class="eva-quick-card" href="{% url 'admin:products_category_changelist' %}">
+      <span class="eva-card-icon">◈</span>
+      <small>STRUCTURE</small>
+      <strong>دسته‌بندی‌ها</strong>
+      <span>ساختار فروشگاه را مرتب و قابل توسعه نگه دار.</span>
+    </a>
+    <a class="eva-quick-card" href="{% url 'admin:products_color_changelist' %}">
+      <span class="eva-card-icon">●</span>
+      <small>COLORS</small>
+      <strong>رنگ‌ها</strong>
+      <span>رنگ‌ها و کدهای HEX را مدیریت کن.</span>
+    </a>
+    <a class="eva-quick-card" href="{% url 'admin:products_size_changelist' %}">
+      <span class="eva-card-icon">↔</span>
+      <small>SIZES</small>
+      <strong>سایزها</strong>
+      <span>سایزهای قابل فروش و وضعیت آن‌ها را تنظیم کن.</span>
+    </a>
+  </div>
+
+  {% if app_list %}
+  <section class="eva-apps">
+    <div class="eva-section-title"><span>02 / MANAGEMENT</span><h2>مدیریت سیستم</h2></div>
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
