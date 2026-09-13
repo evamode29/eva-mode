@@ -9,23 +9,24 @@
   <link rel="stylesheet" href="{% static 'css/eva.css' %}">
 </head>
 <body>
+<div class="announcement">ارسال سفارش‌ها با بسته‌بندی اختصاصی EVA MODE <span>·</span> انتخابی برای تو</div>
 <header class="header">
   <div class="container header-inner">
-    <a class="brand" href="/">E<span>VA</span> MODE</a>
+    <a class="brand" href="/" aria-label="EVA MODE">E<span>VA</span> MODE</a>
     <form class="search search-form" action="/shop/" method="get">
       <span aria-hidden="true">⌕</span>
-      <input name="q" placeholder="جستجو در محصولات و دسته‌بندی‌ها..." aria-label="جستجوی محصولات">
+      <input name="q" placeholder="چه چیزی دنبالش می‌گردی؟" aria-label="جستجوی محصولات">
     </form>
     <nav aria-label="منوی اصلی">
       <a href="/">خانه</a>
       <a href="/shop/">فروشگاه</a>
-      {% for c in categories %}
+      {% for c in categories|slice:":5" %}
         <a href="/shop/?category={{ c.slug }}">{{ c.name }}</a>
       {% endfor %}
     </nav>
     <div class="actions">
       <a href="/shop/">حساب</a>
-      <a href="/shop/">سبد</a>
+      <a class="bag-action" href="/shop/">سبد <span>۰</span></a>
     </div>
   </div>
 </header>
@@ -33,33 +34,36 @@
 <main>
   <section class="hero">
     <div class="hero-content">
-      <small>EVA MODE / WOMEN'S INTIMATES</small>
-      <h1>ظرافتی که<br>برای تو ساخته شده.</h1>
-      <p>مجموعه‌ای از لباس زیر زنانه با طراحی مدرن، انتخاب رنگ و سایز و جزئیاتی که تفاوت را می‌سازند.</p>
+      <div class="hero-kicker"><span></span> EVA MODE / PRIVATE COLLECTION</div>
+      <h1>ظرافتی که<br><em>برای تو</em> ساخته شده.</h1>
+      <p>لباس زیر زنانه با طراحی مدرن، انتخاب رنگ و سایز و جزئیاتی که تجربه‌ای متفاوت می‌سازند.</p>
       <div class="hero-actions">
-        <a class="btn" href="/shop/">مشاهده فروشگاه</a>
-        <a class="text-link" href="#new">جدیدترین محصولات ←</a>
+        <a class="btn" href="/shop/">مشاهده کالکشن</a>
+        <a class="text-link" href="#new">جدیدترین‌ها <b>←</b></a>
       </div>
+      <div class="hero-micro"><span>01</span> طراحی زنانه <i></i><span>02</span> انتخاب دقیق</div>
     </div>
-    <div class="hero-note">EVA MODE · PRIVATE COLLECTION</div>
+    <div class="hero-note">EVA MODE<br>WOMEN'S INTIMATES</div>
   </section>
 
-  <section class="trust" aria-label="مزایای خرید">
-    <div><b>انتخاب دقیق</b><span>رنگ‌ها و سایزهای متنوع</span></div>
-    <div><b>تجربه متفاوت</b><span>طراحی لوکس و مینیمال</span></div>
-    <div><b>EVA MODE</b><span>فروشگاه تخصصی لباس زیر زنانه</span></div>
+  <section class="trust" aria-label="مزایای EVA MODE">
+    <div><b>انتخاب دقیق</b><span>رنگ و سایز برای انتخاب راحت‌تر</span></div>
+    <div><b>طراحی مینیمال</b><span>زیبایی بدون شلوغی و اغراق</span></div>
+    <div><b>تجربه EVA MODE</b><span>از انتخاب تا بسته‌بندی با دقت</span></div>
   </section>
 
   {% if categories %}
-  <section class="section">
+  <section class="section category-section">
     <div class="section-head">
-      <div><small>01 / CATEGORIES</small><h2>دسته‌بندی‌ها</h2></div>
-      <a href="/shop/">همه محصولات ←</a>
+      <div><small>01 / EXPLORE</small><h2>کشف کالکشن‌ها</h2></div>
+      <a href="/shop/">همه محصولات <b>←</b></a>
     </div>
     <div class="categories">
       {% for c in categories|slice:":4" %}
-        <a class="category" href="/shop/?category={{ c.slug }}">
-          <span>{{ c.name }}</span><b>۰{{ forloop.counter }}</b>
+        <a class="category category-large" href="/shop/?category={{ c.slug }}">
+          <span class="category-index">0{{ forloop.counter }}</span>
+          <div><small>EVA COLLECTION</small><strong>{{ c.name }}</strong></div>
+          <b class="category-arrow">↙</b>
         </a>
       {% endfor %}
     </div>
@@ -68,8 +72,8 @@
 
   <section class="section" id="new">
     <div class="section-head">
-      <div><small>02 / NEW ARRIVALS</small><h2>جدیدترین‌های EVA MODE</h2></div>
-      <a href="/shop/">مشاهده همه ←</a>
+      <div><small>02 / NEW ARRIVALS</small><h2>تازه‌های EVA MODE</h2></div>
+      <a href="/shop/">مشاهده همه <b>←</b></a>
     </div>
     <div class="grid">
       {% for p in products|slice:":4" %}
@@ -84,7 +88,7 @@
             {% empty %}<span class="image-placeholder">EVA MODE</span>{% endfor %}
           {% endif %}
           {% if p.old_price %}<span class="sale-badge">SALE</span>{% endif %}
-          <span class="quick-view">مشاهده ←</span>
+          <span class="quick-view">مشاهده محصول <b>←</b></span>
         </div>
         <div class="product-meta">
           <span class="product-category">{{ p.category.name }}</span>
@@ -96,25 +100,31 @@
         </div>
       </a>
       {% empty %}
-        <div class="empty"><strong>هنوز محصولی اضافه نشده</strong><span>محصولات جدید به‌زودی در EVA MODE نمایش داده می‌شوند.</span><a class="btn" href="/admin/">ورود به مدیریت</a></div>
+        <div class="empty"><strong>کالکشن EVA MODE هنوز خالی است.</strong><span>اولین محصولات را از مدیریت اضافه کن تا اینجا نمایش داده شوند.</span><a class="btn" href="/admin/">ورود به مدیریت</a></div>
       {% endfor %}
     </div>
   </section>
 
-  <section class="section">
-    <div class="section-head">
-      <div><small>03 / EVA MODE</small><h2>انتخابی برای هر سلیقه</h2></div>
+  <section class="brand-story section">
+    <div class="brand-story-copy">
+      <small>03 / THE EVA IDEA</small>
+      <h2>کمتر، اما<br><em>دقیق‌تر.</em></h2>
+      <p>در EVA MODE قرار نیست انتخاب‌ها شلوغ باشند. هر محصول با تمرکز روی فرم، راحتی، رنگ و حس خوب انتخاب شده تا چیزی پیدا کنی که واقعاً با تو هماهنگ باشد.</p>
+      <a class="text-link" href="/shop/">ورود به فروشگاه <b>←</b></a>
     </div>
-    <div class="category" style="padding:34px 30px;display:block">
-      <b style="font-size:28px;display:block;margin-bottom:8px">زیبایی، راحتی، اعتماد.</b>
-      <span style="color:var(--muted);font-size:13px">ما EVA MODE را برای تجربه‌ای ساده، شیک و مطمئن ساخته‌ایم؛ از انتخاب محصول تا جزئیات خرید.</span>
-    </div>
+    <div class="brand-story-mark"><span>EVA</span><small>MODE</small><i></i></div>
+  </section>
+
+  <section class="newsletter section">
+    <div><small>EVA MODE / STAY CLOSE</small><h2>برای انتخاب‌های بعدی<br>همراه ما باش.</h2></div>
+    <a class="btn" href="/shop/">شروع خرید <b>←</b></a>
   </section>
 </main>
 
 <footer class="footer">
   <div class="container">
     <div><strong>EVA MODE</strong><span>فروشگاه تخصصی لباس زیر زنانه</span></div>
+    <div class="footer-links"><a href="/shop/">فروشگاه</a><a href="/admin/">مدیریت</a></div>
     <span>© EVA MODE</span>
   </div>
 </footer>
