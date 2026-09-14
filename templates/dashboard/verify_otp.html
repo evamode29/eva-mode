@@ -1,0 +1,25 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}تأیید شماره | EVA MODE{% endblock %}
+{% block heading %}تأیید شماره موبایل{% endblock %}
+{% block content %}
+<section class="auth-card otp-card">
+  <div class="auth-mark">EVA</div>
+  <span class="eyebrow">PHONE VERIFICATION</span>
+  <h2>کد تأیید را وارد کنید</h2>
+  <p>کد ۶ رقمی برای شماره <strong dir="ltr">{{ phone }}</strong> ایجاد شده است.</p>
+  <form method="post" class="dashboard-form">
+    {% csrf_token %}
+    <label for="id_code">کد تأیید</label>
+    {{ form.code }}
+    {% if form.code.errors %}<div class="form-error">{{ form.code.errors|striptags }}</div>{% endif %}
+    <button class="primary-btn" type="submit">تأیید و ورود</button>
+  </form>
+  {% if demo_code %}<div class="demo-otp">کد آزمایشی: <strong dir="ltr">{{ demo_code }}</strong></div>{% endif %}
+  <p class="otp-meta">اعتبار کد: {{ remaining }} ثانیه</p>
+  <form method="post" action="{% url 'customer:resend_otp' %}">
+    {% csrf_token %}
+    <button class="text-btn" type="submit">ارسال کد جدید</button>
+  </form>
+  <a class="back-link" href="{% url 'customer:login' %}">← تغییر شماره موبایل</a>
+</section>
+{% endblock %}
