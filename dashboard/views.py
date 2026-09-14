@@ -9,6 +9,7 @@ from django.db import transaction
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from products.models import Category, Product, ProductColor, ProductSize
 from .forms import OTPVerifyForm, PhoneLoginForm
@@ -46,12 +47,14 @@ def customer_login(request):
     form = PhoneLoginForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         phone = form.cleaned_data["phone"]
+        next_url = request.POST.get("next") or request.GET.get("next") or ""
+        if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+            request.session["otp_next"] = next_url
         code = f"{random.randint(0, 999999):06d}"
         request.session["otp_phone"] = phone
         request.session["otp_code"] = code
         request.session["otp_expires"] = (timezone.now() + timedelta(seconds=OTP_TTL_SECONDS)).isoformat()
         request.session["otp_attempts"] = 0
-        # Development mode: show the test code on the verification page and terminal.
         print(f"[EVA MODE OTP] {phone}: {code}")
         messages.success(request, "کد تأیید ارسال شد. (در حالت آزمایشی کد روی همین صفحه نمایش داده می‌شود.)")
         return redirect("customer:verify_otp")
@@ -68,7 +71,7 @@ def verify_otp(request):
         expires = timezone.make_aware(expires)
     remaining = max(0, int((expires - timezone.now()).total_seconds()))
     form = OTPVerifyForm(request.POST or None)
-    demo_code = request.session.get("otp_code") if request.session.get("otp_code") else ""
+    demo_code = request.session.get("otp_code") or ""
 
     if request.method == "POST":
         if remaining <= 0:
@@ -77,8 +80,8 @@ def verify_otp(request):
         attempts = int(request.session.get("otp_attempts", 0))
         if attempts >= OTP_MAX_ATTEMPTS:
             messages.error(request, "تعداد تلاش‌ها تمام شد. دوباره درخواست کد کنید.")
-            request.session.pop("otp_phone", None)
-            request.session.pop("otp_code", None)
+            for key in ("otp_phone", "otp_code", "otp_expires", "otp_attempts"):
+                request.session.pop(key, None)
             return redirect("customer:login")
         if form.is_valid():
             request.session["otp_attempts"] = attempts + 1
