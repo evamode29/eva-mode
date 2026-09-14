@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}EVA MODE{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+      <a class="dashboard-logo" href="/">EVA <span>MODE</span></a>
+      <div class="dashboard-label">حساب کاربری</div>
+      <nav>
+        <a href="/account/" class="side-link">خانه حساب</a>
+        <a href="/shop/" class="side-link">فروشگاه</a>
+        {% if request.user.is_staff %}<a href="/management/" class="side-link">مدیریت فروشگاه</a>{% endif %}
+        <a href="/admin/" class="side-link">پنل ادمین</a>
+      </nav>
+      {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'customer:logout' %}" class="logout-form">
+        {% csrf_token %}<button type="submit">خروج از حساب</button>
+      </form>
+      {% endif %}
+    </aside>
+    <main class="dashboard-main">
+      <header class="dashboard-topbar">
+        <div><span class="eyebrow">EVA MODE</span><h1>{% block heading %}داشبورد{% endblock %}</h1></div>
+        <div class="user-chip">{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% endif %}</div>
+      </header>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
