@@ -1,0 +1,17 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}ورود | EVA MODE{% endblock %}
+{% block heading %}ورود به حساب{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <div class="auth-mark">EVA</div>
+  <h2>خوش آمدید</h2>
+  <p>برای مشاهده حساب کاربری و سفارش‌ها وارد شوید.</p>
+  <form method="post" class="dashboard-form">
+    {% csrf_token %}
+    <label for="id_username">نام کاربری</label>{{ form.username }}
+    <label for="id_password">رمز عبور</label>{{ form.password }}
+    {% if form.errors %}<div class="form-error">نام کاربری یا رمز عبور صحیح نیست.</div>{% endif %}
+    <button class="primary-btn" type="submit">ورود به EVA MODE</button>
+  </form>
+</section>
+{% endblock %}
