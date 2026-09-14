@@ -1,0 +1,42 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}سبد خرید | EVA MODE{% endblock %}
+{% block heading %}سبد خرید{% endblock %}
+{% block content %}
+<section class="cart-layout">
+  <div class="panel">
+    <div class="panel-head"><h2>انتخاب‌های شما</h2><span>{{ items|length }} آیتم</span></div>
+    {% if items %}
+      <form method="post" action="{% url 'customer:update_cart' %}" class="cart-form">{% csrf_token %}
+        {% for item in items %}
+          <div class="cart-row">
+            {% if item.product.main_image_url %}<img src="{{ item.product.main_image_url }}" alt="{{ item.product.name }}">{% endif %}
+            <div class="cart-info"><strong>{{ item.product.name }}</strong><small>{% if item.color %}رنگ: {{ item.color.name }}{% endif %}{% if item.size %} · سایز: {{ item.size.name }}{% endif %}</small><span>{{ item.product.price|floatformat:0 }} تومان</span></div>
+            <input class="qty" type="number" min="0" max="99" name="qty_{{ item.id }}" value="{{ item.quantity }}" aria-label="تعداد {{ item.product.name }}">
+            <div class="line-total">{{ item.line_total|floatformat:0 }} تومان</div>
+            <button class="icon-remove" type="submit" formaction="{% url 'customer:remove_from_cart' item.id %}" formmethod="post" title="حذف">×</button>
+          </div>
+        {% endfor %}
+        <button class="secondary-btn" type="submit">به‌روزرسانی سبد</button>
+      </form>
+    {% else %}
+      <div class="empty-state"><div class="empty-mark">EVA</div><h2>سبد خرید خالی است</h2><p>محصول مورد علاقه‌ات را از مجموعه EVA MODE انتخاب کن.</p><a class="primary-btn" href="/shop/">مشاهده فروشگاه</a></div>
+    {% endif %}
+  </div>
+  {% if items %}
+  <div class="panel checkout-panel">
+    <h2>اطلاعات ارسال</h2>
+    <p class="checkout-note">شماره موبایل احراز شده شما: <strong>{{ request.user.username }}</strong></p>
+    <form method="post" action="{% url 'customer:place_order' %}" class="dashboard-form">{% csrf_token %}
+      <label>نام و نام خانوادگی<input name="full_name" required value="{{ request.user.get_full_name }}"></label>
+      <label>شماره تماس<input name="phone" required value="{{ request.user.username }}"></label>
+      <div class="form-grid"><label>استان<input name="province" required></label><label>شهر<input name="city" required></label></div>
+      <label>آدرس کامل<textarea name="address" required rows="3"></textarea></label>
+      <label>کد پستی<input name="postal_code" inputmode="numeric"></label>
+      <label>یادداشت سفارش<textarea name="note" rows="2"></textarea></label>
+      <div class="checkout-summary"><span>جمع محصولات</span><strong>{{ subtotal|floatformat:0 }} تومان</strong><span>ارسال</span><strong>{% if shipping %}{{ shipping|floatformat:0 }} تومان{% else %}رایگان{% endif %}</strong><b>مبلغ نهایی</b><b>{{ total|floatformat:0 }} تومان</b></div>
+      <button class="primary-btn" type="submit">ثبت سفارش</button>
+    </form>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
