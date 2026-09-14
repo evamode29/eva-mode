@@ -5,14 +5,13 @@ from django.urls import include, path
 
 from products.views import home
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("shop/", include("products.urls")),
+    path("account/", include("dashboard.customer_urls")),
+    path("management/", include("dashboard.management_urls")),
     path("", home, name="home"),
 ]
 
-# Media files are served by Django only during local development.
-# On cPanel/production, configure the web server to serve MEDIA_ROOT directly.
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
