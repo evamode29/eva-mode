@@ -1,0 +1,17 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}مدیریت فروشگاه | EVA MODE{% endblock %}
+{% block heading %}مدیریت فروشگاه{% endblock %}
+{% block content %}
+<section class="welcome-panel management-hero"><div><span class="eyebrow">STORE CONTROL CENTER</span><h2>مرکز مدیریت EVA MODE</h2><p>محصولات، موجودی و ساختار فروشگاه را از یک صفحه کنترل کن.</p></div><a class="outline-btn" href="/admin/">ورود به ادمین کامل</a></section>
+<div class="stat-grid">
+  <article class="stat-card"><span>کل محصولات</span><strong>{{ product_count }}</strong><small>محصول ثبت‌شده</small></article>
+  <article class="stat-card"><span>محصولات فعال</span><strong>{{ active_product_count }}</strong><small>قابل نمایش در فروشگاه</small></article>
+  <article class="stat-card"><span>دسته‌بندی‌ها</span><strong>{{ category_count }}</strong><small>ساختار فروشگاه</small></article>
+  <article class="stat-card alert"><span>هشدار موجودی</span><strong>{{ low_stock_count }}</strong><small>سایز با موجودی ۳ یا کمتر</small></article>
+</div>
+<div class="dashboard-grid">
+  <section class="panel"><div class="panel-head"><h3>موجودی کل</h3><span>{{ total_stock }} عدد</span></div><div class="inventory-box"><strong>{{ total_stock }}</strong><p>واحد موجودی فعال در همه سایزها</p></div></section>
+  <section class="panel"><div class="panel-head"><h3>دسترسی مدیریت</h3></div><div class="quick-list"><a href="/admin/products/product/add/">افزودن محصول جدید <b>←</b></a><a href="/admin/products/product/">مدیریت محصولات <b>←</b></a><a href="/admin/products/category/">مدیریت دسته‌بندی‌ها <b>←</b></a><a href="/admin/products/color/">مدیریت رنگ‌ها <b>←</b></a></div></section>
+</div>
+<section class="panel stock-panel"><div class="panel-head"><h3>هشدارهای موجودی</h3><span>کمتر یا مساوی ۳</span></div>{% if low_stock %}<div class="stock-table"><div class="stock-row stock-header"><span>محصول</span><span>سایز</span><span>موجودی</span></div>{% for item in low_stock %}<div class="stock-row"><span>{{ item.product.name }}</span><span>{{ item.size.name }}</span><strong>{{ item.stock }}</strong></div>{% endfor %}</div>{% else %}<div class="empty-state compact"><h4>همه‌چیز مرتب است ✦</h4><p>در حال حاضر مورد کم‌موجودی نداریم.</p></div>{% endif %}</section>
+{% endblock %}
