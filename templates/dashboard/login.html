@@ -4,15 +4,16 @@
 {% block content %}
 <section class="auth-card">
   <div class="auth-mark">EVA</div>
-  <h2>خوش آمدید</h2>
-  <p>برای مشاهده حساب کاربری و سفارش‌ها وارد شوید.</p>
+  <span class="eyebrow">SECURE SIGN IN</span>
+  <h2>ورود با شماره موبایل</h2>
+  <p>ثبت‌نام جداگانه لازم نیست. شماره موبایل خود را وارد کنید تا کد تأیید برایتان ارسال شود.</p>
   <form method="post" class="dashboard-form">
     {% csrf_token %}
-    <label for="id_username">نام کاربری</label>{{ form.username }}
-    <label for="id_password">رمز عبور</label>{{ form.password }}
-    {% if form.errors %}<div class="form-error">نام کاربری یا رمز عبور صحیح نیست.</div>{% endif %}
-    <button class="primary-btn" type="submit">ورود به EVA MODE</button>
+    <label for="id_phone">شماره موبایل</label>
+    {{ form.phone }}
+    {% if form.phone.errors %}<div class="form-error">{{ form.phone.errors|striptags }}</div>{% endif %}
+    <button class="primary-btn" type="submit">دریافت کد تأیید</button>
   </form>
-  <p style="margin-top:20px">حساب ندارید؟ <a href="{% url 'customer:register' %}" style="color:#9a725f;font-weight:600">ثبت‌نام کنید</a></p>
+  <small class="auth-note">شماره موبایل شما برای ورود امن به حساب و پیگیری سفارش‌ها استفاده می‌شود.</small>
 </section>
 {% endblock %}
