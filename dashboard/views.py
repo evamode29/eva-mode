@@ -48,6 +48,7 @@ def customer_login(request):
     if request.method == "POST" and form.is_valid():
         phone = form.cleaned_data["phone"]
         next_url = request.POST.get("next") or request.GET.get("next") or ""
+        request.session.pop("otp_next", None)
         if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
             request.session["otp_next"] = next_url
         code = f"{random.randint(0, 999999):06d}"
@@ -58,7 +59,7 @@ def customer_login(request):
         print(f"[EVA MODE OTP] {phone}: {code}")
         messages.success(request, "کد تأیید ارسال شد. (در حالت آزمایشی کد روی همین صفحه نمایش داده می‌شود.)")
         return redirect("customer:verify_otp")
-    return render(request, "dashboard/login.html", {"form": form})
+    return render(request, "dashboard/login.html", {"form": form, "next": request.GET.get("next", "")})
 
 
 def verify_otp(request):
@@ -76,11 +77,13 @@ def verify_otp(request):
     if request.method == "POST":
         if remaining <= 0:
             messages.error(request, "کد منقضی شده است. دوباره درخواست کد کنید.")
+            for key in ("otp_phone", "otp_code", "otp_expires", "otp_attempts", "otp_next"):
+                request.session.pop(key, None)
             return redirect("customer:login")
         attempts = int(request.session.get("otp_attempts", 0))
         if attempts >= OTP_MAX_ATTEMPTS:
             messages.error(request, "تعداد تلاش‌ها تمام شد. دوباره درخواست کد کنید.")
-            for key in ("otp_phone", "otp_code", "otp_expires", "otp_attempts"):
+            for key in ("otp_phone", "otp_code", "otp_expires", "otp_attempts", "otp_next"):
                 request.session.pop(key, None)
             return redirect("customer:login")
         if form.is_valid():
@@ -88,10 +91,11 @@ def verify_otp(request):
             if form.cleaned_data["code"] == request.session.get("otp_code"):
                 user = find_or_create_customer(phone)
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+                next_url = request.session.pop("otp_next", "")
                 for key in ("otp_phone", "otp_code", "otp_expires", "otp_attempts"):
                     request.session.pop(key, None)
                 messages.success(request, "شماره موبایل شما با موفقیت احراز شد.")
-                return redirect(request.session.pop("otp_next", "customer:dashboard"))
+                return redirect(next_url or "customer:dashboard")
             form.add_error("code", "کد واردشده صحیح نیست.")
 
     return render(request, "dashboard/verify_otp.html", {
@@ -129,6 +133,12 @@ def customer_dashboard(request):
     })
 
 
+@login_required
+def customer_orders(request):
+    orders = request.user.orders.prefetch_related("items").all()
+    return render(request, "dashboard/orders.html", {"orders": orders})
+
+
 def logout_post(request):
     if request.method == "POST":
         logout(request)
@@ -162,7 +172,9 @@ def add_to_cart(request):
 @login_required
 def cart(request):
     items = request.user.cart_items.select_related("product", "color", "size").all()
-    return render(request, "dashboard/cart.html", {"items": items, "subtotal": sum(i.line_total for i in items), "shipping": 0})
+    subtotal = sum(i.line_total for i in items)
+    shipping = 0
+    return render(request, "dashboard/cart.html", {"items": items, "subtotal": subtotal, "shipping": shipping, "total": subtotal + shipping})
 
 
 @login_required
@@ -240,6 +252,20 @@ def order_detail(request, order_id):
 
 def staff_required(view):
     return user_passes_test(lambda user: user.is_active and user.is_staff, login_url="/account/login/")(view)
+
+
+@staff_required
+def management_order_status(request, order_id):
+    if request.method != "POST":
+        return redirect("management:dashboard")
+    order = get_object_or_404(Order, pk=order_id)
+    status = request.POST.get("status", "")
+    valid_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
+    if status in valid_statuses:
+        order.status = status
+        order.save(update_fields=["status", "updated_at"])
+        messages.success(request, f"وضعیت سفارش {order.number} به «{order.get_status_display()}» تغییر کرد.")
+    return redirect("management:dashboard")
 
 
 @staff_required
