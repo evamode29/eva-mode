@@ -1,9 +1,11 @@
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from django.db.models import Sum
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from products.models import Category, Product, ProductSize
+from .forms import CustomerCreationForm
 
 
 @login_required
@@ -16,6 +18,17 @@ def customer_dashboard(request):
 class CustomerLoginView(LoginView):
     template_name = "dashboard/login.html"
     redirect_authenticated_user = True
+
+
+def register(request):
+    if request.user.is_authenticated:
+        return redirect("customer:dashboard")
+    form = CustomerCreationForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        user = form.save()
+        login(request, user)
+        return redirect("customer:dashboard")
+    return render(request, "dashboard/register.html", {"form": form})
 
 
 def staff_required(view):
