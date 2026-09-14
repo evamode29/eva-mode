@@ -1,0 +1,18 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}حساب من | EVA MODE{% endblock %}
+{% block heading %}حساب من{% endblock %}
+{% block content %}
+<section class="welcome-panel">
+  <div><span class="eyebrow">PRIVATE ACCOUNT</span><h2>سلام {{ request.user.first_name|default:request.user.username }}، خوش آمدی</h2><p>همه چیز مربوط به خریدهای EVA MODE از اینجا در دسترس خواهد بود.</p></div>
+  <a class="outline-btn" href="/shop/">ادامه خرید</a>
+</section>
+<div class="stat-grid">
+  <article class="stat-card"><span>سفارش‌ها</span><strong>۰</strong><small>هنوز سفارشی ثبت نشده</small></article>
+  <article class="stat-card"><span>علاقه‌مندی‌ها</span><strong>۰</strong><small>محصولات محبوب شما</small></article>
+  <article class="stat-card"><span>اعتبار حساب</span><strong>۰</strong><small>تومان</small></article>
+</div>
+<div class="dashboard-grid">
+  <section class="panel"><div class="panel-head"><h3>آخرین سفارش‌ها</h3><span>فعلاً خالی</span></div><div class="empty-state"><div class="empty-icon">♡</div><h4>هنوز سفارشی ندارید</h4><p>اولین انتخابت را از کالکشن EVA MODE شروع کن.</p><a href="/shop/" class="primary-btn">مشاهده محصولات</a></div></section>
+  <section class="panel"><div class="panel-head"><h3>دسترسی سریع</h3></div><div class="quick-list"><a href="/shop/">خرید و مشاهده محصولات <b>←</b></a><a href="/account/">اطلاعات حساب <b>←</b></a><a href="/management/">مدیریت فروشگاه <b>←</b></a></div></section>
+</div>
+{% endblock %}
