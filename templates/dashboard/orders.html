@@ -1,0 +1,20 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}سفارش‌های من | EVA MODE{% endblock %}
+{% block heading %}سفارش‌های من{% endblock %}
+{% block content %}
+<section class="panel">
+  <div class="panel-head"><h2>تاریخچه خرید</h2><span>{{ orders|length }} سفارش</span></div>
+  {% if orders %}
+    <div class="orders-list">
+      {% for order in orders %}
+      <a class="order-card" href="{% url 'customer:order_detail' order.id %}">
+        <div><strong>{{ order.number }}</strong><small>{{ order.created_at|date:'Y/m/d - H:i' }}</small></div>
+        <div><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span><b>{{ order.total|floatformat:0 }} تومان</b></div>
+      </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><div class="empty-mark">EVA</div><h2>هنوز سفارشی ثبت نکرده‌ای</h2><p>اولین انتخابت را از مجموعه EVA MODE انجام بده.</p><a class="primary-btn" href="/shop/">رفتن به فروشگاه</a></div>
+  {% endif %}
+</section>
+{% endblock %}
