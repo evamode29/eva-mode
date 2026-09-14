@@ -1,0 +1,12 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}ثبت‌نام | EVA MODE{% endblock %}
+{% block heading %}ساخت حساب{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <div class="auth-mark">EVA</div><h2>حساب EVA MODE</h2><p>حساب خودت را بساز و خریدهایت را یکجا مدیریت کن.</p>
+  <form method="post" class="dashboard-form">{% csrf_token %}
+    {% for field in form %}<label>{{ field.label }}</label>{{ field }}{% if field.errors %}<div class="form-error">{{ field.errors|striptags }}</div>{% endif %}{% endfor %}
+    <button class="primary-btn" type="submit">ساخت حساب</button>
+  </form>
+</section>
+{% endblock %}
