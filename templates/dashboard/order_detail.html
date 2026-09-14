@@ -1,0 +1,12 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}سفارش {{ order.number }} | EVA MODE{% endblock %}
+{% block heading %}جزئیات سفارش{% endblock %}
+{% block content %}
+<section class="panel order-page">
+  <div class="order-head"><div><span>شماره سفارش</span><h1>{{ order.number }}</h1></div><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span></div>
+  <div class="order-track"><div class="track-step done">ثبت سفارش</div><div class="track-step {% if order.status != 'pending' %}done{% endif %}">تأیید</div><div class="track-step {% if order.status in 'processing shipped delivered' %}done{% endif %}">آماده‌سازی</div><div class="track-step {% if order.status in 'shipped delivered' %}done{% endif %}">ارسال</div><div class="track-step {% if order.status == 'delivered' %}done{% endif %}">تحویل</div></div>
+  <div class="order-items">{% for item in order.items.all %}<div class="order-item"><div><strong>{{ item.product_name }}</strong><small>{% if item.color_name %}رنگ: {{ item.color_name }}{% endif %}{% if item.size_name %} · سایز: {{ item.size_name }}{% endif %}</small></div><span>{{ item.quantity }} × {{ item.unit_price|floatformat:0 }} تومان</span><b>{{ item.line_total|floatformat:0 }} تومان</b></div>{% endfor %}</div>
+  <div class="order-bottom"><div><h3>آدرس ارسال</h3><p>{{ order.full_name }} · {{ order.phone }}<br>{{ order.province }}، {{ order.city }}، {{ order.address }}{% if order.postal_code %}<br>کد پستی: {{ order.postal_code }}{% endif %}</p></div><div class="checkout-summary"><span>جمع محصولات</span><strong>{{ order.subtotal|floatformat:0 }} تومان</strong><span>ارسال</span><strong>رایگان</strong><b>مبلغ نهایی</b><b>{{ order.total|floatformat:0 }} تومان</b></div></div>
+  <a class="secondary-btn" href="{% url 'customer:dashboard' %}">بازگشت به داشبورد</a>
+</section>
+{% endblock %}
