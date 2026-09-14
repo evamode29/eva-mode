@@ -2,10 +2,51 @@
 {% block title %}حساب من | EVA MODE{% endblock %}
 {% block heading %}حساب من{% endblock %}
 {% block content %}
-<section class="welcome-panel"><div><span class="eyebrow">PRIVATE ACCOUNT</span><h2>سلام {{ request.user.first_name|default:request.user.username }}، خوش آمدی</h2><p>سفارش‌ها، سبد خرید و وضعیت ارسال از اینجا در دسترس توست.</p></div><a class="outline-btn" href="/shop/">ادامه خرید</a></section>
-<div class="stat-grid"><article class="stat-card"><span>سفارش‌ها</span><strong>{{ order_count }}</strong><small>تعداد سفارش‌های ثبت‌شده</small></article><article class="stat-card"><span>سبد خرید</span><strong>{{ cart_count }}</strong><small>آیتم آماده خرید</small></article><article class="stat-card"><span>جمع سبد</span><strong>{{ cart_total|floatformat:0 }}</strong><small>تومان</small></article></div>
+<section class="welcome-panel">
+  <div>
+    <span class="eyebrow">PRIVATE ACCOUNT</span>
+    <h2>سلام، خوش آمدی</h2>
+    <p>شماره ورود: <strong dir="ltr">{{ request.user.username }}</strong></p>
+    <p>سفارش‌ها، سبد خرید و وضعیت ارسال از اینجا در دسترس توست.</p>
+  </div>
+  <a class="outline-btn" href="/shop/">ادامه خرید</a>
+</section>
+
+<div class="stat-grid">
+  <article class="stat-card"><span>سفارش‌ها</span><strong>{{ order_count }}</strong><small>کل سفارش‌های ثبت‌شده</small></article>
+  <article class="stat-card"><span>در حال پیگیری</span><strong>{{ shipping_count }}</strong><small>سفارش‌های تأیید یا ارسال‌شده</small></article>
+  <article class="stat-card"><span>تحویل‌شده</span><strong>{{ delivered_count }}</strong><small>خریدهای موفق</small></article>
+  <article class="stat-card"><span>سبد خرید</span><strong>{{ cart_count }}</strong><small>{{ cart_total|floatformat:0 }} تومان</small></article>
+</div>
+
 <div class="dashboard-grid">
-<section class="panel"><div class="panel-head"><h3>آخرین سفارش‌ها</h3><a href="{% url 'customer:cart' %}">سبد خرید ←</a></div>{% if orders %}<div class="order-list">{% for order in orders %}<a class="order-card" href="{% url 'customer:order_detail' order.id %}"><div><strong>{{ order.number }}</strong><small>{{ order.created_at|date:'Y/m/d - H:i' }}</small></div><span class="status status-{{ order.status }}">{{ order.get_status_display }}</span><b>{{ order.total|floatformat:0 }} تومان</b></a>{% endfor %}</div>{% else %}<div class="empty-state"><div class="empty-icon">♡</div><h4>هنوز سفارشی ندارید</h4><p>اولین انتخابت را از کالکشن EVA MODE شروع کن.</p><a href="/shop/" class="primary-btn">مشاهده محصولات</a></div>{% endif %}</section>
-<section class="panel"><div class="panel-head"><h3>دسترسی سریع</h3></div><div class="quick-list"><a href="/shop/">خرید و مشاهده محصولات <b>←</b></a><a href="{% url 'customer:cart' %}">سبد خرید من <b>←</b></a><a href="/account/logout/" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">خروج از حساب <b>←</b></a>{% if request.user.is_staff %}<a href="/management/">مدیریت فروشگاه <b>←</b></a>{% endif %}</div><form id="logout-form" method="post" action="{% url 'customer:logout' %}">{% csrf_token %}</form></section>
+<section class="panel">
+  <div class="panel-head"><h3>آخرین سفارش‌ها</h3><a href="{% url 'customer:cart' %}">سبد خرید ←</a></div>
+  {% if orders %}
+  <div class="order-list">
+    {% for order in orders %}
+    <a class="order-card" href="{% url 'customer:order_detail' order.id %}">
+      <div><strong>{{ order.number }}</strong><small>{{ order.created_at|date:'Y/m/d - H:i' }}</small></div>
+      <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+      <b>{{ order.total|floatformat:0 }} تومان</b>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">♡</div><h4>هنوز سفارشی ندارید</h4><p>اولین انتخابت را از کالکشن EVA MODE شروع کن.</p><a href="/shop/" class="primary-btn">مشاهده محصولات</a></div>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <div class="panel-head"><h3>حساب و خرید</h3></div>
+  <div class="quick-list">
+    <a href="/shop/">خرید و مشاهده محصولات <b>←</b></a>
+    <a href="{% url 'customer:cart' %}">سبد خرید من <b>←</b></a>
+    {% if order_count %}<a href="#orders">آخرین وضعیت سفارش‌ها <b>←</b></a>{% endif %}
+    {% if request.user.is_staff %}<a href="/management/">مدیریت فروشگاه <b>←</b></a>{% endif %}
+    <a href="/account/logout/" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">خروج از حساب <b>←</b></a>
+  </div>
+  <form id="logout-form" method="post" action="{% url 'customer:logout' %}">{% csrf_token %}</form>
+</section>
 </div>
 {% endblock %}
