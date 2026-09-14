@@ -13,5 +13,6 @@
     {% if form.errors %}<div class="form-error">نام کاربری یا رمز عبور صحیح نیست.</div>{% endif %}
     <button class="primary-btn" type="submit">ورود به EVA MODE</button>
   </form>
+  <p style="margin-top:20px">حساب ندارید؟ <a href="{% url 'customer:register' %}" style="color:#9a725f;font-weight:600">ثبت‌نام کنید</a></p>
 </section>
 {% endblock %}
