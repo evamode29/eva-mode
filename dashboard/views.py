@@ -1,12 +1,12 @@
 import uuid
 
-from django.contrib.auth import login
+from django.contrib import messages
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib import messages
 
 from products.models import Category, Product, ProductColor, ProductSize
 from .forms import CustomerCreationForm
@@ -43,7 +43,6 @@ def register(request):
 
 
 def logout_post(request):
-    from django.contrib.auth import logout
     if request.method == "POST":
         logout(request)
         return redirect("home")
@@ -57,16 +56,17 @@ def add_to_cart(request):
     product = get_object_or_404(Product, pk=request.POST.get("product_id"), is_active=True)
     color = None
     size = None
-    color_id = request.POST.get("color_id")
-    size_id = request.POST.get("size_id")
-    if color_id:
-        color = get_object_or_404(ProductColor, product=product, color_id=color_id, is_active=True).color
-    if size_id:
-        size = get_object_or_404(ProductSize, product=product, size_id=size_id, is_active=True).size
-    quantity = max(1, int(request.POST.get("quantity", 1) or 1))
+    if request.POST.get("color_id"):
+        color = get_object_or_404(ProductColor, product=product, color_id=request.POST["color_id"], is_active=True).color
+    if request.POST.get("size_id"):
+        size = get_object_or_404(ProductSize, product=product, size_id=request.POST["size_id"], is_active=True).size
+    try:
+        quantity = max(1, min(99, int(request.POST.get("quantity", 1) or 1)))
+    except ValueError:
+        quantity = 1
     item, created = CartItem.objects.get_or_create(user=request.user, product=product, color=color, size=size, defaults={"quantity": quantity})
     if not created:
-        item.quantity += quantity
+        item.quantity = min(99, item.quantity + quantity)
         item.save(update_fields=["quantity", "updated_at"])
     messages.success(request, "محصول به سبد خرید اضافه شد.")
     return redirect(request.POST.get("next") or "customer:cart")
@@ -85,11 +85,11 @@ def update_cart(request):
             if key.startswith("qty_"):
                 try:
                     item = request.user.cart_items.get(pk=key[4:])
-                    qty = max(0, int(value))
+                    qty = max(0, min(99, int(value)))
                     if qty == 0:
                         item.delete()
                     else:
-                        item.quantity = min(qty, 99)
+                        item.quantity = qty
                         item.save(update_fields=["quantity", "updated_at"])
                 except (ValueError, CartItem.DoesNotExist):
                     pass
@@ -122,25 +122,24 @@ def place_order(request):
                 messages.error(request, f"محصول «{item.product.name}» دیگر فعال نیست.")
                 return redirect("customer:cart")
             if item.size_id:
-                stock = ProductSize.objects.select_for_update().get(product=item.product, size_id=item.size_id, is_active=True).stock
-                if item.quantity > stock:
+                stock_obj = ProductSize.objects.select_for_update().get(product=item.product, size_id=item.size_id, is_active=True)
+                if item.quantity > stock_obj.stock:
                     messages.error(request, f"موجودی سایز {item.size} برای «{item.product.name}» کافی نیست.")
                     return redirect("customer:cart")
         subtotal = sum(item.line_total for item in items)
-        shipping = 0
         order = Order.objects.create(
             user=request.user, number=f"EVA-{uuid.uuid4().hex[:10].upper()}", status="pending",
             full_name=request.POST["full_name"].strip(), phone=request.POST["phone"].strip(),
             province=request.POST["province"].strip(), city=request.POST["city"].strip(),
             address=request.POST["address"].strip(), postal_code=request.POST.get("postal_code", "").strip(),
-            note=request.POST.get("note", "").strip(), subtotal=subtotal, shipping=shipping, total=subtotal,
+            note=request.POST.get("note", "").strip(), subtotal=subtotal, shipping=0, total=subtotal,
         )
         for item in items:
             OrderItem.objects.create(order=order, product=item.product, color=item.color, size=item.size,
                 product_name=item.product.name, color_name=item.color.name if item.color else "",
                 size_name=item.size.name if item.size else "", unit_price=item.product.price, quantity=item.quantity)
             if item.size_id:
-                ProductSize.objects.filter(product=item.product, size_id=item.size_id).update(stock=models.F("stock") - item.quantity)
+                ProductSize.objects.filter(pk=ProductSize.objects.get(product=item.product, size_id=item.size_id).pk).update(stock=F("stock") - item.quantity)
         request.user.cart_items.all().delete()
     messages.success(request, f"سفارش {order.number} با موفقیت ثبت شد.")
     return redirect("customer:order_detail", order_id=order.id)
@@ -160,9 +159,8 @@ def staff_required(view):
 def management_dashboard(request):
     products = Product.objects.all()
     low_stock = ProductSize.objects.filter(is_active=True, stock__lte=3).select_related("product", "size").order_by("stock")[:8]
-    context = {
+    return render(request, "dashboard/management.html", {
         "product_count": products.count(), "active_product_count": products.filter(is_active=True).count(),
         "category_count": Category.objects.count(), "low_stock_count": ProductSize.objects.filter(is_active=True, stock__lte=3).count(),
         "total_stock": ProductSize.objects.filter(is_active=True).aggregate(total=Sum("stock"))["total"] or 0, "low_stock": low_stock,
-    }
-    return render(request, "dashboard/management.html", context)
+    })
